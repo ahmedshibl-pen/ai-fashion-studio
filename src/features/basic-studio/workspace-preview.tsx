@@ -295,10 +295,10 @@ export function WorkspacePreview({
                 <div><strong>{product.fileName}</strong><span>{product.sizeLabel} · Ready</span></div>
                 <div className={styles.productActions}>
                   <button className={styles.replaceProduct} type="button" onClick={() => fileInputRef.current?.click()}>
-                    <span aria-hidden="true">↻</span> Replace image
+                    Replace image
                   </button>
                   <button className={styles.removeProduct} type="button" onClick={removeProduct}>
-                    <span aria-hidden="true">×</span> Remove
+                    Remove image
                   </button>
                 </div>
               </div>

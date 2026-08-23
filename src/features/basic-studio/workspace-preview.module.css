@@ -439,21 +439,22 @@
 }
 
 .productMeta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.8rem;
+  position: relative;
+  z-index: 2;
+  display: grid;
   border-top: 1px solid var(--border-subtle);
+  background: var(--surface-elevated);
 }
 
 .productMeta > div:first-child {
   min-width: 0;
   display: grid;
   gap: 0.18rem;
+  padding: 0.85rem 1rem;
 }
 
 .productMeta strong {
+  max-width: 100%;
   overflow: hidden;
   font-size: 0.72rem;
   text-overflow: ellipsis;
@@ -471,30 +472,38 @@
 .productActions {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  border-top: 1px solid var(--border-subtle);
+  background: var(--surface-light);
 }
 
 .replaceProduct,
 .removeProduct {
-  min-height: 34px;
+  min-height: 38px;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.45rem 0.65rem;
-  border: 0;
-  background: transparent;
-  font-size: 0.63rem;
+  justify-content: center;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-elevated);
+  font-size: 0.65rem;
   font-weight: 650;
-  transition: color 160ms ease, background 160ms ease;
+  line-height: 1;
+  white-space: nowrap;
+  transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
 }
 
 .replaceProduct {
-  color: var(--text-primary);
+  color: var(--brand-primary);
+  border-color: color-mix(in srgb, var(--brand-primary) 55%, transparent);
 }
 
 .replaceProduct:hover {
-  color: var(--brand-primary);
-  background: color-mix(in srgb, var(--brand-primary) 7%, transparent);
+  color: var(--text-on-dark);
+  border-color: var(--brand-primary);
+  background: var(--brand-primary);
 }
 
 .removeProduct {
@@ -503,13 +512,8 @@
 
 .removeProduct:hover {
   color: var(--error);
-  background: color-mix(in srgb, var(--error) 7%, transparent);
-}
-
-.replaceProduct span,
-.removeProduct span {
-  font-size: 0.9rem;
-  line-height: 1;
+  border-color: color-mix(in srgb, var(--error) 55%, transparent);
+  background: color-mix(in srgb, var(--error) 7%, var(--surface-elevated));
 }
 
 .privacyNote {
@@ -745,11 +749,6 @@
   .dropZone {
     height: 18rem;
     min-height: 18rem;
-  }
-
-  .productMeta {
-    align-items: flex-start;
-    flex-direction: column;
   }
 
   .reviewTotals {
