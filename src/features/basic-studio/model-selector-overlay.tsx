@@ -102,6 +102,7 @@ export function ModelSelectorOverlay({ initialModelId, onChoose }: ModelSelector
         data-dragging={dragging}
         style={{ "--drag-offset": `${dragOffset}px` } as CSSProperties}
         onPointerDown={(event) => {
+          if ((event.target as HTMLElement).closest("button")) return;
           pointerStart.current = event.clientX;
           setDragging(true);
           event.currentTarget.setPointerCapture(event.pointerId);
@@ -114,9 +115,6 @@ export function ModelSelectorOverlay({ initialModelId, onChoose }: ModelSelector
         aria-label="Model showroom. Use left and right arrow keys or swipe to browse."
       >
         <div className={styles.spotlight} aria-hidden="true" />
-        <span className={styles.modelIndex} aria-hidden="true">
-          {String(activeIndex + 1).padStart(2, "0")}
-        </span>
 
         <div className={styles.modelTrack} aria-live="polite">
           {STUDIO_MODELS.map((model, index) => {

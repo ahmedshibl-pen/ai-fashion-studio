@@ -100,3 +100,12 @@ Remaining:
 - Desktop selector screenshot: `/private/tmp/ai-fashion-studio-model-overlay-desktop.png`.
 - Mobile selector screenshot: `/private/tmp/ai-fashion-studio-model-overlay-mobile.png`.
 - Selected workspace screenshot: `/private/tmp/ai-fashion-studio-workspace-selected-desktop.png`.
+
+### Checkpoint 2 interaction polish
+
+- Removed the oversized model number from behind the active model.
+- Removed the lower model-stage fade while retaining the transparent-model composition.
+- Refined model movement with a longer smooth deceleration curve and compositor hints.
+- Prevented model-stage drag handling from intercepting arrow, model-card, and pagination button clicks.
+- Browser interaction verification passed: Next changed Male Model 01 to Female Model 01; Choose closed the overlay, unlocked the workspace, and updated the URL to the selected model.
+- Updated selector screenshot: `/private/tmp/ai-fashion-studio-model-overlay-clean-desktop.png`.
