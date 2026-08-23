@@ -1,11 +1,14 @@
+"use client";
+
 import Image from "next/image";
-import Link from "next/link";
+import { useState } from "react";
 
 import { AppHeader } from "@/components/shell/app-header";
 import { Button, StatusBadge, UploadSurface } from "@/components/ui";
 
 import { getCameraPresetsForModel } from "./camera-presets";
 import { getLightingPresetsForModel } from "./lighting-presets";
+import { ModelSelectorOverlay } from "./model-selector-overlay";
 import { STUDIO_MODEL_BY_ID, type StudioModelId } from "./model-catalog";
 import { getPosePresetsForModel } from "./pose-presets";
 import styles from "./workspace-preview.module.css";
@@ -34,17 +37,39 @@ function PresetSection({ eyebrow, title, countLabel, presets }: { eyebrow: strin
   );
 }
 
-export function WorkspacePreview({ modelId }: { modelId: StudioModelId }) {
+export function WorkspacePreview({
+  modelId: initialModelId,
+  selectorOpen: initiallySelectorOpen,
+}: {
+  modelId: StudioModelId;
+  selectorOpen: boolean;
+}) {
+  const [modelId, setModelId] = useState(initialModelId);
+  const [selectorOpen, setSelectorOpen] = useState(initiallySelectorOpen);
   const model = STUDIO_MODEL_BY_ID[modelId];
   const lighting = getLightingPresetsForModel(modelId);
   const poses = getPosePresetsForModel(modelId);
   const cameras = getCameraPresetsForModel(modelId);
-  const femaleUnavailable = modelId === "female-model-01";
+
+  const chooseModel = (nextModelId: StudioModelId) => {
+    setModelId(nextModelId);
+    setSelectorOpen(false);
+
+    const params = new URLSearchParams(window.location.search);
+    params.set("stage", "workspace");
+    params.set("model", nextModelId);
+    window.history.replaceState(null, "", `${window.location.pathname}?${params.toString()}`);
+  };
 
   return (
     <div className={styles.page}>
       <AppHeader />
-      <main className={styles.main}>
+      <main
+        className={styles.main}
+        data-selector-open={selectorOpen}
+        aria-hidden={selectorOpen}
+        inert={selectorOpen}
+      >
         <header className={styles.workspaceHeader}>
           <div>
             <p className={styles.eyebrow}>Basic Studio / Creative workspace</p>
@@ -53,7 +78,7 @@ export function WorkspacePreview({ modelId }: { modelId: StudioModelId }) {
           </div>
           <div className={styles.headerActions}>
             <StatusBadge tone="success">● Autosaved</StatusBadge>
-            <Link href="/studio/basic">Change model</Link>
+            <button type="button" onClick={() => setSelectorOpen(true)}>Change model</button>
           </div>
         </header>
 
@@ -76,27 +101,17 @@ export function WorkspacePreview({ modelId }: { modelId: StudioModelId }) {
               <UploadSurface id="workspace-upload" accept="image/png,image/jpeg,image/webp" label="Upload product image" hint="PNG, JPG or WEBP · local preview only" />
             </section>
 
-            {femaleUnavailable ? (
-              <section className={styles.emptyState}>
-                <p className={styles.eyebrow}>Studio compatibility</p>
-                <h2>Female Model 01 studio options are being prepared.</h2>
-                <p>Choose another model to continue with Lighting, Pose and Camera controls today.</p>
-                <Link href="/studio/basic">Change Model</Link>
-              </section>
-            ) : (
-              <>
-                <PresetSection eyebrow="02 / Lighting" title="Shape the light" countLabel={`${lighting.length} PRESETS`} presets={lighting} />
-                <PresetSection eyebrow="03 / Pose" title="Direct the body" countLabel={`${poses.length} PRESETS`} presets={poses} />
-                <PresetSection eyebrow="04 / Camera" title="Frame the campaign" countLabel={`${cameras.length} PRESETS`} presets={cameras} />
-                <footer className={styles.actions}>
-                  <Button variant="secondary">Save draft</Button>
-                  <Button>Review setup <span aria-hidden="true">→</span></Button>
-                </footer>
-              </>
-            )}
+            <PresetSection eyebrow="02 / Lighting" title="Shape the light" countLabel={`${lighting.length} PRESETS`} presets={lighting} />
+            <PresetSection eyebrow="03 / Pose" title="Direct the body" countLabel={`${poses.length} PRESETS`} presets={poses} />
+            <PresetSection eyebrow="04 / Camera" title="Frame the campaign" countLabel={`${cameras.length} PRESETS`} presets={cameras} />
+            <footer className={styles.actions}>
+              <Button variant="secondary">Save draft</Button>
+              <Button>Review setup <span aria-hidden="true">→</span></Button>
+            </footer>
           </div>
         </div>
       </main>
+      {selectorOpen ? <ModelSelectorOverlay initialModelId={modelId} onChoose={chooseModel} /> : null}
     </div>
   );
 }

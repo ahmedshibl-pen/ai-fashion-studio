@@ -80,8 +80,8 @@ export default function Home() {
               campaign-ready fashion imagery inside one intelligent studio.
             </p>
             <div className={styles.heroActions}>
-              <Link className={styles.primaryAction} href="#studios">
-                Start Creating <span aria-hidden="true">↓</span>
+              <Link className={styles.primaryAction} href="/studio/basic">
+                Start Creating <span aria-hidden="true">↗</span>
               </Link>
               <Link className={styles.secondaryAction} href="#studios">
                 Explore Studios <span aria-hidden="true">↓</span>

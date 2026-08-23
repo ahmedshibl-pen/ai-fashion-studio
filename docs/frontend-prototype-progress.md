@@ -88,3 +88,15 @@ Remaining:
 - Checkpoint 3: production-ready persisted Basic Studio workflow and review state.
 - Checkpoint 4: mocked auth, checkout, generation, results, approval, and delivery.
 - Checkpoint 5: complete responsive/a11y/performance/acceptance QA.
+
+### Checkpoint 2 visual revision — unified studio entry
+
+- Removed the separate model-choice page and its now-unused component styles.
+- Updated every Start Creating entry to open `/studio/basic` directly.
+- The real Product, Lighting, Pose, and Camera workspace now renders immediately behind a locked translucent blur.
+- Added an accessible modal model selector with the active transparent model centered, the alternate model faded at the side, smooth pointer/swipe and keyboard navigation, left-side model description/status, and explicit selection.
+- Choosing a model dismisses the selector in place, updates the URL without reloading, and reveals the same workspace with the selected model and matching presets.
+- Change model reopens the selector over the current workspace instead of navigating to another page.
+- Desktop selector screenshot: `/private/tmp/ai-fashion-studio-model-overlay-desktop.png`.
+- Mobile selector screenshot: `/private/tmp/ai-fashion-studio-model-overlay-mobile.png`.
+- Selected workspace screenshot: `/private/tmp/ai-fashion-studio-workspace-selected-desktop.png`.

@@ -1,7 +1,0 @@
-.page {
-  min-height: 100svh;
-  overflow: hidden;
-  background:
-    radial-gradient(circle at 72% 36%, color-mix(in srgb, var(--accent-champagne) 22%, transparent), transparent 31%),
-    linear-gradient(108deg, var(--surface-elevated), var(--canvas-light) 54%, var(--surface-beige));
-}

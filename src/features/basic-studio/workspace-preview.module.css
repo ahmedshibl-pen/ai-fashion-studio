@@ -7,6 +7,15 @@
   width: min(calc(100% - 3rem), var(--content-wide));
   margin-inline: auto;
   padding-block: 1.5rem 4rem;
+  transition: filter 360ms ease, opacity 360ms ease, transform 360ms ease;
+}
+
+.main[data-selector-open="true"] {
+  filter: blur(7px) saturate(0.68);
+  opacity: 0.58;
+  transform: scale(0.992);
+  pointer-events: none;
+  user-select: none;
 }
 
 .workspaceHeader {
@@ -54,6 +63,7 @@
   gap: 0.75rem;
 }
 
+.headerActions > button,
 .headerActions > a,
 .emptyState a {
   min-height: 42px;
@@ -66,6 +76,11 @@
   text-decoration: none;
   font-size: 0.68rem;
   font-weight: 600;
+}
+
+.headerActions > button:hover {
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
 }
 
 .workspace {
@@ -341,4 +356,8 @@
   .actions > button {
     flex: 1;
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .main { transition: none; }
 }

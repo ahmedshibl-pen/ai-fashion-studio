@@ -1,11 +1,7 @@
 import type { Metadata } from "next";
 
-import { AppHeader } from "@/components/shell/app-header";
-import { ModelCarousel } from "@/features/basic-studio/model-carousel";
 import { isStudioModelId } from "@/features/basic-studio/model-catalog";
 import { WorkspacePreview } from "@/features/basic-studio/workspace-preview";
-
-import styles from "./studio-entry.module.css";
 
 export const metadata: Metadata = {
   title: "Basic Studio — AI Fashion Studio",
@@ -17,15 +13,7 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 export default async function BasicStudio({ searchParams }: { searchParams: SearchParams }) {
   const query = await searchParams;
   const requestedModel = typeof query.model === "string" ? query.model : null;
+  const modelId = isStudioModelId(requestedModel) ? requestedModel : "male-model-01";
 
-  if (query.stage === "workspace" && isStudioModelId(requestedModel)) {
-    return <WorkspacePreview modelId={requestedModel} />;
-  }
-
-  return (
-    <div className={styles.page}>
-      <AppHeader />
-      <ModelCarousel />
-    </div>
-  );
+  return <WorkspacePreview modelId={modelId} selectorOpen={query.stage !== "workspace"} />;
 }
