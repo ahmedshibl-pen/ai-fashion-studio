@@ -39,7 +39,6 @@ export const WORKFLOW_STORAGE_KEY = "ai-fashion-studio:basic-workflow";
 
 export const STUDIO_STEPS = [
   "product",
-  "model",
   "lighting",
   "pose",
   "camera",

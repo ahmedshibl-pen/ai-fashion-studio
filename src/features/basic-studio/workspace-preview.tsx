@@ -11,7 +11,7 @@ import {
 } from "react";
 
 import { AppHeader } from "@/components/shell/app-header";
-import { Button, CurrentSetup, StatusBadge, StatusMessage } from "@/components/ui";
+import { Button, StatusBadge, StatusMessage } from "@/components/ui";
 
 import {
   CAMERA_PRESET_BY_ID,
@@ -45,7 +45,6 @@ import styles from "./workspace-preview.module.css";
 
 const STEP_LABELS: Record<StudioStep, string> = {
   product: "Product",
-  model: "Model",
   lighting: "Lighting",
   pose: "Pose",
   camera: "Camera",
@@ -58,28 +57,23 @@ const STEP_COPY: Record<StudioStep, { eyebrow: string; title: string; descriptio
     title: "Bring in the product",
     description: "Use a clean product image. Nothing leaves your browser in this prototype.",
   },
-  model: {
-    eyebrow: "02 / Model",
-    title: "Choose the campaign face",
-    description: "The selected model stays with the project through every creative step.",
-  },
   lighting: {
-    eyebrow: "03 / Lighting",
+    eyebrow: "02 / Lighting",
     title: "Shape the light",
     description: "Choose one of eight lighting directions built for Male Model 01.",
   },
   pose: {
-    eyebrow: "04 / Pose",
+    eyebrow: "03 / Pose",
     title: "Direct the body",
     description: "Choose the posture that shows the silhouette and garment most clearly.",
   },
   camera: {
-    eyebrow: "05 / Camera",
+    eyebrow: "04 / Camera",
     title: "Frame the campaign",
     description: "Move from product detail to wide editorial composition.",
   },
   review: {
-    eyebrow: "06 / Review",
+    eyebrow: "05 / Review",
     title: "Review the creative setup",
     description: "Confirm every direction before the mocked campaign generation begins.",
   },
@@ -274,7 +268,6 @@ export function WorkspacePreview({
 
   const canContinue = (() => {
     if (workflow.activeStep === "product") return product !== null;
-    if (workflow.activeStep === "model") return true;
     if (femaleUnavailable && ["lighting", "pose", "camera", "review"].includes(workflow.activeStep)) return false;
     if (workflow.activeStep === "lighting") return setup.lightingPresetId !== null;
     if (workflow.activeStep === "pose") return setup.posePresetId !== null;
@@ -349,22 +342,6 @@ export function WorkspacePreview({
       );
     }
 
-    if (workflow.activeStep === "model") {
-      return (
-        <div className={styles.modelChoice}>
-          <div className={styles.modelChoiceStage}>
-            <Image src={model.imagePath} alt={model.accessibilityLabel} fill sizes="(max-width: 700px) 80vw, 30vw" priority />
-          </div>
-          <div>
-            <StatusBadge tone="success">Selected</StatusBadge>
-            <h3>{model.displayName}</h3>
-            <p>{model.description}</p>
-            <Button type="button" variant="secondary" onClick={openModelSelector}>Change Model</Button>
-          </div>
-        </div>
-      );
-    }
-
     if (workflow.activeStep === "lighting") {
       return <PresetGrid name="lighting" presets={lighting} selectedId={setup.lightingPresetId} onSelect={(id) => updateSetup({ lightingPresetId: id as LightingPresetId })} />;
     }
@@ -381,7 +358,23 @@ export function WorkspacePreview({
           <article className={styles.reviewItem} key={item.label}>
             <span>{String(index + 1).padStart(2, "0")}</span>
             <div><p>{item.label}</p><strong>{item.value}</strong></div>
-            <button type="button" onClick={() => goToStep(STUDIO_STEPS[Math.min(index, 4)])}>Edit</button>
+            <button
+              type="button"
+              onClick={() => {
+                if (item.label === "Model") {
+                  openModelSelector();
+                  return;
+                }
+
+                const editStep = {
+                  Product: "product",
+                  Lighting: "lighting",
+                  Pose: "pose",
+                  Camera: "camera",
+                }[item.label] as StudioStep | undefined;
+                if (editStep) goToStep(editStep);
+              }}
+            >Edit</button>
           </article>
         ))}
         <div className={styles.reviewTotals}>
@@ -432,9 +425,7 @@ export function WorkspacePreview({
                   <img src={product.previewUrl} alt="" /><span>Product</span>
                 </div>
               ) : null}
-              <div className={styles.previewLabel}><span>Live direction</span><strong>{previewAsset?.label ?? model.displayName}</strong></div>
             </div>
-            <CurrentSetup items={setupItems} />
           </aside>
 
           <section className={styles.controls} aria-labelledby="step-title">
