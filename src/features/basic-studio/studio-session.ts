@@ -12,6 +12,7 @@ import {
 } from "./lighting-presets";
 import {
   STUDIO_MODELS,
+  isStudioModelId,
   type StudioModelId,
 } from "./model-catalog";
 import {
@@ -34,6 +35,24 @@ export type ModelSetupSelections = Record<
 
 export const MODEL_STORAGE_KEY = "ai-fashion-studio:selected-model";
 export const MODEL_SETUP_STORAGE_KEY = "ai-fashion-studio:model-setups";
+export const WORKFLOW_STORAGE_KEY = "ai-fashion-studio:basic-workflow";
+
+export const STUDIO_STEPS = [
+  "product",
+  "model",
+  "lighting",
+  "pose",
+  "camera",
+  "review",
+] as const;
+
+export type StudioStep = (typeof STUDIO_STEPS)[number];
+
+export type StudioWorkflowSession = {
+  modelId: StudioModelId;
+  activeStep: StudioStep;
+  setups: ModelSetupSelections;
+};
 
 export function readSessionStorage(key: string): string | null {
   if (typeof window === "undefined") {
@@ -76,6 +95,14 @@ export function removeSessionStorage(key: string): boolean {
 export function getDefaultSetupForModel(
   modelId: StudioModelId,
 ): ModelSetupSelection {
+  if (modelId === "female-model-01") {
+    return {
+      lightingPresetId: null,
+      posePresetId: null,
+      cameraPresetId: null,
+    };
+  }
+
   return {
     lightingPresetId: getDefaultLightingPresetForModel(modelId)?.id ?? null,
     posePresetId: getDefaultPosePresetForModel(modelId)?.id ?? null,
@@ -101,6 +128,10 @@ export function validateStoredModelSetup(
   value: unknown,
 ): ModelSetupSelection {
   const fallback = getDefaultSetupForModel(modelId);
+
+  if (modelId === "female-model-01") {
+    return fallback;
+  }
 
   if (!isRecord(value)) {
     return fallback;
@@ -152,4 +183,47 @@ export function parseStoredModelSetups(
       validateStoredModelSetup(model.id, storedSetups[model.id]),
     ]),
   ) as ModelSetupSelections;
+}
+
+export function isStudioStep(value: unknown): value is StudioStep {
+  return typeof value === "string" && STUDIO_STEPS.includes(value as StudioStep);
+}
+
+export function createDefaultWorkflowSession(
+  modelId: StudioModelId = "male-model-01",
+): StudioWorkflowSession {
+  return {
+    modelId,
+    activeStep: "product",
+    setups: createDefaultModelSetups(),
+  };
+}
+
+export function parseStoredWorkflowSession(
+  value: string | null,
+  fallbackModelId: StudioModelId = "male-model-01",
+): StudioWorkflowSession {
+  let parsed: unknown = null;
+
+  if (value !== null) {
+    try {
+      parsed = JSON.parse(value);
+    } catch {
+      parsed = null;
+    }
+  }
+
+  if (!isRecord(parsed)) {
+    return createDefaultWorkflowSession(fallbackModelId);
+  }
+
+  const modelId = typeof parsed.modelId === "string" && isStudioModelId(parsed.modelId)
+    ? parsed.modelId
+    : fallbackModelId;
+  const activeStep = isStudioStep(parsed.activeStep) ? parsed.activeStep : "product";
+  const setups = parseStoredModelSetups(
+    typeof parsed.setups === "object" ? JSON.stringify(parsed.setups) : null,
+  );
+
+  return { modelId, activeStep, setups };
 }
