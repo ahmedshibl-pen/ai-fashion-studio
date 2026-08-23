@@ -26,7 +26,7 @@ const plexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "AI Fashion Studio — From Product Image to Fashion Campaign",
   description:
-    "Choose the model, lighting, and pose. Build campaign-ready fashion imagery inside one intelligent studio.",
+    "Choose the model, lighting, pose, and camera framing. Build campaign-ready fashion imagery inside one intelligent studio.",
 };
 
 export default function RootLayout({
@@ -35,7 +35,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${cormorant.variable} ${plexSans.variable} ${plexMono.variable}`}>
+    <html
+      lang="en"
+      className={`${cormorant.variable} ${plexSans.variable} ${plexMono.variable}`}
+      data-scroll-behavior="smooth"
+    >
       <body>{children}</body>
     </html>
   );

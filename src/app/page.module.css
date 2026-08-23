@@ -256,17 +256,22 @@
 }
 
 .transformation {
-  min-height: 24rem;
-  display: grid;
-  grid-template-columns: 3fr 8fr;
-  gap: 3rem;
-  align-items: end;
-  padding-block: 6rem;
+  padding-block: 7.5rem 8.5rem;
   border-bottom: 1px solid rgb(243 231 213 / 16%);
 }
 
-.transformation .sectionLabel {
-  padding-bottom: 0.7rem;
+.transformationCopy {
+  display: grid;
+  grid-template-columns: 3fr 6fr 3fr;
+  gap: 3rem;
+  align-items: end;
+}
+
+.transformationBody {
+  margin: 0 0 0.55rem;
+  color: var(--parchment);
+  font-size: 0.91rem;
+  line-height: 1.75;
 }
 
 .statementHeading {
@@ -275,6 +280,155 @@
   letter-spacing: -0.045em;
   line-height: 0.96;
   text-wrap: balance;
+}
+
+.transformationBoard {
+  min-height: 38rem;
+  display: grid;
+  grid-template-columns: 1.12fr 0.88fr;
+  gap: 1px;
+  margin-top: 4.5rem;
+  background: rgb(243 231 213 / 18%);
+  border: 1px solid rgb(243 231 213 / 18%);
+}
+
+.sourceFrame,
+.directionStage,
+.studioImage,
+.controlImage {
+  position: relative;
+  overflow: hidden;
+}
+
+.sourceFrame {
+  min-height: 38rem;
+}
+
+.sourceFrame::after,
+.studioImage::after,
+.controlImage::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent 52%, rgb(10 7 6 / 72%) 100%);
+}
+
+.sourceFrame img,
+.studioImage img,
+.controlImage img {
+  object-fit: cover;
+  transition: transform 650ms cubic-bezier(0.2, 0.72, 0.25, 1);
+}
+
+.sourceFrame:hover img,
+.studioEntry:hover .studioImage img,
+.controlCard:hover .controlImage img {
+  transform: scale(1.025);
+}
+
+.sourceFrame > span,
+.directionCaption,
+.controlImage > span,
+.studioImage .availability {
+  position: absolute;
+  z-index: 2;
+}
+
+.sourceFrame > span {
+  bottom: 1.5rem;
+  left: 1.5rem;
+  color: var(--ivory);
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.directionStage {
+  min-height: 38rem;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 50% 27%, rgb(255 244 226 / 82%), transparent 26%),
+    linear-gradient(145deg, #d8d0c6 0%, #a79c91 56%, #625a54 100%);
+}
+
+.directionStage::before {
+  position: absolute;
+  z-index: -1;
+  top: -15%;
+  left: 50%;
+  width: 72%;
+  height: 88%;
+  content: "";
+  background: linear-gradient(180deg, rgb(255 250 239 / 78%), transparent 86%);
+  clip-path: polygon(42% 0, 58% 0, 100% 100%, 0 100%);
+  transform: translateX(-50%);
+}
+
+.directionStage::after {
+  position: absolute;
+  right: 8%;
+  bottom: 6%;
+  left: 8%;
+  height: 12%;
+  content: "";
+  background: radial-gradient(ellipse, rgb(28 24 21 / 34%), transparent 68%);
+  filter: blur(8px);
+}
+
+.stageIndex {
+  position: absolute;
+  z-index: 1;
+  top: 1.4rem;
+  right: 1.6rem;
+  color: rgb(26 23 21 / 38%);
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 7vw, 7rem);
+  font-style: italic;
+  line-height: 1;
+}
+
+.directionModel {
+  position: absolute;
+  z-index: 1;
+  right: 6%;
+  bottom: -7%;
+  width: 88%;
+  height: 104%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: drop-shadow(0 28px 24px rgb(28 22 18 / 28%));
+}
+
+.directionCaption {
+  right: 1.5rem;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.15rem;
+  color: var(--ivory);
+  background: rgb(17 16 15 / 76%);
+  border: 1px solid rgb(255 255 255 / 16%);
+  backdrop-filter: blur(7px);
+}
+
+.directionCaption span,
+.directionCaption strong {
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.directionCaption span {
+  color: var(--gold);
+  font-family: var(--font-mono);
+}
+
+.directionCaption strong {
+  font-weight: 600;
 }
 
 .howItWorks {
@@ -365,16 +519,40 @@
 
 .studioEntry {
   display: grid;
-  grid-template-columns: 2fr 6fr 4fr;
-  gap: 2rem;
-  align-items: center;
-  padding-block: 2.6rem;
-  border-bottom: 1px solid rgb(243 231 213 / 20%);
-  transition: border-color 180ms ease;
+  grid-template-columns: 1.25fr 0.75fr;
+  min-height: 34rem;
+  margin-top: 3rem;
+  border: 1px solid rgb(243 231 213 / 20%);
+  background: rgb(12 9 7 / 28%);
+  transition:
+    border-color 180ms ease,
+    transform 280ms ease;
 }
 
 .studioEntry:hover {
   border-color: rgb(196 154 101 / 74%);
+  transform: translateY(-3px);
+}
+
+.studioImage {
+  min-height: 34rem;
+}
+
+.studioImage .availability {
+  top: 1.5rem;
+  left: 1.5rem;
+  padding: 0.55rem 0.75rem;
+  color: var(--ink);
+  background: var(--gold);
+}
+
+.studioDetails {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 3rem;
+  padding: clamp(2rem, 4vw, 4rem);
+  border-left: 1px solid rgb(243 231 213 / 20%);
 }
 
 .studioEntry h3 {
@@ -384,18 +562,144 @@
   line-height: 1;
 }
 
-.studioEntry p {
+.studioDetails p {
   margin-top: 0.8rem;
 }
 
-.studioEntry .availability {
-  margin: 0;
+.studioNumber {
+  margin: 0 !important;
   color: var(--gold);
+  font-family: var(--font-mono);
   font-size: 0.62rem;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
 }
 
 .studioLink {
-  justify-self: end;
+  width: fit-content;
+}
+
+.futureStudios {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  margin-top: 1rem;
+  border-top: 1px solid rgb(243 231 213 / 16%);
+  border-left: 1px solid rgb(243 231 213 / 16%);
+}
+
+.futureStudios article {
+  min-height: 10rem;
+  padding: 1.7rem;
+  color: rgb(213 201 186 / 42%);
+  background: rgb(8 6 5 / 26%);
+  border-right: 1px solid rgb(243 231 213 / 16%);
+  border-bottom: 1px solid rgb(243 231 213 / 16%);
+}
+
+.futureStudios span,
+.futureStudios p {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.futureStudios h3 {
+  margin: 1.7rem 0 0;
+  color: rgb(231 220 207 / 52%);
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 500;
+}
+
+.futureStudios p {
+  margin: 0.45rem 0 0;
+}
+
+.controlsPreview {
+  padding-block: 8.5rem;
+  border-top: 1px solid rgb(243 231 213 / 14%);
+  border-bottom: 1px solid rgb(243 231 213 / 14%);
+}
+
+.controlsIntro {
+  display: grid;
+  grid-template-columns: 3fr 9fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+.controlsIntro .sectionHeading {
+  max-width: 13ch;
+  margin-top: 0;
+}
+
+.controlsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  margin-top: 4.5rem;
+  background: rgb(243 231 213 / 18%);
+  border: 1px solid rgb(243 231 213 / 18%);
+}
+
+.controlCard {
+  min-width: 0;
+  padding: 0.75rem 0.75rem 1.6rem;
+  background: rgb(12 9 7 / 78%);
+}
+
+.controlImage {
+  aspect-ratio: 4 / 5;
+  background: #a8a095;
+}
+
+.controlImage::after {
+  background: linear-gradient(180deg, transparent 64%, rgb(12 9 7 / 54%) 100%);
+}
+
+.controlImage .controlModel {
+  object-fit: contain;
+  object-position: center 17%;
+  transform: scale(1.13);
+}
+
+.controlCard:hover .controlImage .controlModel {
+  transform: scale(1.16);
+}
+
+.controlImage > span {
+  top: 0.8rem;
+  right: 0.9rem;
+  color: rgb(255 249 240 / 72%);
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-style: italic;
+}
+
+.controlCard > p {
+  margin: 1.35rem 0 0;
+  color: var(--gold);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.controlCard h3 {
+  margin: 0.65rem 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.55rem, 2.2vw, 2.2rem);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.controlCard small {
+  display: block;
+  margin-top: 0.85rem;
+  color: var(--parchment);
+  font-size: 0.76rem;
+  line-height: 1.6;
 }
 
 .finalCta {
@@ -469,14 +773,18 @@
     margin-left: clamp(5rem, 13vw, 9rem);
   }
 
-  .transformation,
   .howItWorks {
     grid-template-columns: 1fr;
   }
 
-  .transformation {
-    gap: 2rem;
-    align-content: end;
+  .transformationCopy,
+  .controlsIntro {
+    grid-template-columns: 1fr;
+    gap: 1.7rem;
+  }
+
+  .transformationBody {
+    max-width: 36rem;
   }
 
   .howItWorks {
@@ -487,17 +795,16 @@
     max-width: 35rem;
   }
 
-  .studioEntry {
-    grid-template-columns: 1fr 2fr;
+  .controlsGrid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
-  .studioEntry > div {
-    grid-column: 2;
+  .controlImage {
+    aspect-ratio: 5 / 4;
   }
 
-  .studioLink {
-    grid-column: 2;
-    justify-self: start;
+  .controlImage .controlModel {
+    object-position: center 12%;
   }
 }
 
@@ -582,8 +889,32 @@
   }
 
   .transformation {
-    min-height: 26rem;
     padding-block: 6rem;
+  }
+
+  .transformationBoard {
+    min-height: 0;
+    grid-template-columns: 1fr;
+    margin-top: 3rem;
+  }
+
+  .sourceFrame,
+  .directionStage {
+    min-height: 29rem;
+  }
+
+  .directionModel {
+    right: 3%;
+    width: 94%;
+  }
+
+  .directionCaption {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .directionCaption strong {
+    line-height: 1.6;
   }
 
   .statementHeading,
@@ -592,7 +923,8 @@
   }
 
   .howItWorks,
-  .studios {
+  .studios,
+  .controlsPreview {
     padding-block: 6rem;
   }
 
@@ -626,16 +958,40 @@
 
   .studioEntry {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    min-height: 0;
+    margin-top: 2rem;
   }
 
-  .studioEntry > div,
-  .studioLink {
-    grid-column: 1;
+  .studioImage {
+    min-height: 25rem;
+  }
+
+  .studioDetails {
+    gap: 2.5rem;
+    padding: 2rem 1.25rem;
+    border-top: 1px solid rgb(243 231 213 / 20%);
+    border-left: 0;
   }
 
   .studioEntry h3 {
     font-size: 2.8rem;
+  }
+
+  .futureStudios {
+    grid-template-columns: 1fr;
+  }
+
+  .controlsGrid {
+    grid-template-columns: 1fr;
+    margin-top: 3rem;
+  }
+
+  .controlCard {
+    padding-bottom: 1.8rem;
+  }
+
+  .controlImage {
+    aspect-ratio: 5 / 4;
   }
 
   .finalCta {

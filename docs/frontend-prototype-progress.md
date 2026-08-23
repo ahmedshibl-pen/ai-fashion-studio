@@ -48,3 +48,43 @@ Remaining:
 - Checkpoint 3: production-ready persisted Basic Studio workflow and review state.
 - Checkpoint 4: mocked auth, checkout, generation, results, approval, and delivery.
 - Checkpoint 5: complete responsive/a11y/performance/acceptance QA.
+
+## Checkpoint 2 — responsive landing page
+
+Status: ready for visual review.
+
+Implemented:
+
+- Completed the responsive cinematic landing page with a continuous studio environment, direct studio entry, and anchored exploration CTA.
+- Added the product-to-campaign transformation board, transparent-model direction stage, and explicit Model, Lighting, Pose, and Camera creative controls.
+- Expanded the Studio Collection into a production-focused Basic Studio card plus clearly disabled future studio concepts.
+- Added large local image compositions with descriptive alternative text and retained lazy loading outside the hero.
+- Tuned all landing layouts for 2048px, 1366px, 1024px, 768px, 390px, and 320px viewport widths.
+- Created the editable Figma review file `AI Fashion Studio — Checkpoint 2 Landing` with desktop and tablet captures. A verified mobile implementation screenshot is included separately because the Starter-plan Figma MCP limit was reached during the final mobile upload.
+
+Validation:
+
+- `npm run typecheck`: passed.
+- `npm run lint`: passed with zero warnings.
+- `npm run build`: passed.
+- `git diff --check`: passed.
+- Browser checks: no horizontal overflow, broken images, clipped content, hydration errors, or console errors at all six target widths.
+- Mobile navigation opens, closes with Escape, and restores focus to its trigger.
+- Security audit: the inherited high-severity transitive `nanoid <3.3.18` advisory remains; no package was added for this checkpoint.
+
+Review links and screenshots:
+
+- Local route: `http://localhost:3000/`
+- Figma file: `https://www.figma.com/design/2haCwJ3FzDUXiyWY36amF1`
+- Desktop Figma frame: `https://www.figma.com/design/2haCwJ3FzDUXiyWY36amF1?node-id=2-2`
+- Tablet Figma frame: `https://www.figma.com/design/2haCwJ3FzDUXiyWY36amF1?node-id=3-2`
+- Desktop screenshot: `/private/tmp/ai-fashion-studio-checkpoint-2/landing-desktop-1440.png`
+- Desktop full-page screenshot: `/private/tmp/ai-fashion-studio-checkpoint-2/landing-desktop-full.png`
+- Mobile screenshot: `/private/tmp/ai-fashion-studio-checkpoint-2/landing-mobile-390.png`
+- Mobile full-page screenshot: `/private/tmp/ai-fashion-studio-checkpoint-2/landing-mobile-full.png`
+
+Remaining:
+
+- Checkpoint 3: production-ready persisted Basic Studio workflow and review state.
+- Checkpoint 4: mocked auth, checkout, generation, results, approval, and delivery.
+- Checkpoint 5: complete responsive/a11y/performance/acceptance QA.
