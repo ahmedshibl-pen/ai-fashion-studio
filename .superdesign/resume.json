@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "targets": {
+    "ui-foundation": {
+      "targetKind": "new-ui",
+      "projectId": "cf483651-b231-4394-b940-b31dc72ef04b",
+      "activeDraftId": "b9cc32e2-d629-4d68-b727-2020a1771154",
+      "designSystemPath": ".superdesign/design-system.md",
+      "contextFiles": [
+        ".superdesign/design-system.md",
+        "src/app/globals.css",
+        "src/components/landing/site-header.tsx",
+        "src/components/landing/site-header.module.css",
+        ".superdesign/init/theme.md"
+      ],
+      "fingerprints": {
+        ".superdesign/design-system.md": "e05beb7355c293191367ab28b9e4cec05ccfd162f007e48f412c362b3f1baab1",
+        "src/app/globals.css": "63f0babbb227d08d5eed4e3fdd634892e03aee847b96e364f64db64cbff67f5c",
+        "src/components/landing/site-header.tsx": "ccdaefdbe139378c2881dad8743d6dc22dcd6d51303f870ec2c2327a706ced48",
+        "src/components/landing/site-header.module.css": "971ea00f8d923cc2468b4a93f96ecfd96272855e4254f552807e6c1079e5953d",
+        ".superdesign/init/theme.md": "0eb0a9071a310b109b8e3a874be6d271e46fbf89185c52e67a9dc36a9937d376"
+      },
+      "drafts": {
+        "b9cc32e2-d629-4d68-b727-2020a1771154": {
+          "title": "Creative Console UI Foundation",
+          "visualDirection": "Graphite, oxblood and warm-stone editorial application foundation with interactive model carousel",
+          "currentVersion": 2
+        }
+      },
+      "updatedAt": "2026-08-23T20:40:00.000Z"
+    }
+  }
+}
