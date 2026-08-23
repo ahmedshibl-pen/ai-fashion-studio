@@ -405,8 +405,7 @@
   letter-spacing: 0.04em;
 }
 
-.uploadGlyph,
-.emptyGlyph {
+.uploadGlyph {
   width: 3rem;
   height: 3rem;
   display: grid;
@@ -471,11 +470,46 @@
 
 .productActions {
   display: flex;
-  gap: 0.35rem;
+  align-items: center;
+  gap: 0.25rem;
 }
 
-.productActions button {
-  min-height: 38px;
+.replaceProduct,
+.removeProduct {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.65rem;
+  border: 0;
+  background: transparent;
+  font-size: 0.63rem;
+  font-weight: 650;
+  transition: color 160ms ease, background 160ms ease;
+}
+
+.replaceProduct {
+  color: var(--text-primary);
+}
+
+.replaceProduct:hover {
+  color: var(--brand-primary);
+  background: color-mix(in srgb, var(--brand-primary) 7%, transparent);
+}
+
+.removeProduct {
+  color: var(--text-secondary);
+}
+
+.removeProduct:hover {
+  color: var(--error);
+  background: color-mix(in srgb, var(--error) 7%, transparent);
+}
+
+.replaceProduct span,
+.removeProduct span {
+  font-size: 0.9rem;
+  line-height: 1;
 }
 
 .privacyNote {
@@ -500,34 +534,6 @@
 
 .privacyNote strong {
   color: var(--text-primary);
-}
-
-.emptyState {
-  min-height: 28rem;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 2rem;
-  border: 1px solid var(--border-subtle);
-  background: var(--surface-light);
-}
-
-.emptyState h2 {
-  max-width: 18ch;
-  margin: 0.6rem 0 0;
-  font-family: var(--font-display);
-  font-size: clamp(2rem, 3.6vw, 3.3rem);
-  font-weight: 600;
-  line-height: 0.93;
-}
-
-.emptyState > p:not(.eyebrow) {
-  max-width: 34rem;
-  margin: 0.8rem 0 1.2rem;
-  color: var(--text-secondary);
-  font-size: 0.72rem;
-  line-height: 1.7;
 }
 
 .reviewGrid {

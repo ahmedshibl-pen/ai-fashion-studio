@@ -94,14 +94,6 @@ export function removeSessionStorage(key: string): boolean {
 export function getDefaultSetupForModel(
   modelId: StudioModelId,
 ): ModelSetupSelection {
-  if (modelId === "female-model-01") {
-    return {
-      lightingPresetId: null,
-      posePresetId: null,
-      cameraPresetId: null,
-    };
-  }
-
   return {
     lightingPresetId: getDefaultLightingPresetForModel(modelId)?.id ?? null,
     posePresetId: getDefaultPosePresetForModel(modelId)?.id ?? null,
@@ -127,10 +119,6 @@ export function validateStoredModelSetup(
   value: unknown,
 ): ModelSetupSelection {
   const fallback = getDefaultSetupForModel(modelId);
-
-  if (modelId === "female-model-01") {
-    return fallback;
-  }
 
   if (!isRecord(value)) {
     return fallback;

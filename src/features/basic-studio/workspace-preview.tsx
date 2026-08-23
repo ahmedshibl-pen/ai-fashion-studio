@@ -60,7 +60,7 @@ const STEP_COPY: Record<StudioStep, { eyebrow: string; title: string; descriptio
   lighting: {
     eyebrow: "02 / Lighting",
     title: "Shape the light",
-    description: "Choose one of eight lighting directions built for Male Model 01.",
+    description: "Choose a lighting direction crafted for the selected model.",
   },
   pose: {
     eyebrow: "03 / Pose",
@@ -130,18 +130,6 @@ function PresetGrid({
   );
 }
 
-function EmptyModelOptions({ onChangeModel }: { onChangeModel: () => void }) {
-  return (
-    <div className={styles.emptyState}>
-      <span className={styles.emptyGlyph} aria-hidden="true">◇</span>
-      <p className={styles.eyebrow}>Coming soon</p>
-      <h2>Female Model 01 studio options are being prepared.</h2>
-      <p>Lighting, pose and camera controls will appear here when the compatible assets are ready.</p>
-      <Button type="button" onClick={onChangeModel}>Change Model</Button>
-    </div>
-  );
-}
-
 export function WorkspacePreview({
   modelId: initialModelId,
   selectorOpen: initiallySelectorOpen,
@@ -187,7 +175,6 @@ export function WorkspacePreview({
   const poses = getPosePresetsForModel(modelId);
   const cameras = getCameraPresetsForModel(modelId);
   const currentStepIndex = STUDIO_STEPS.indexOf(workflow.activeStep);
-  const femaleUnavailable = modelId === "female-model-01";
   const selectedLighting = setup.lightingPresetId ? LIGHTING_PRESET_BY_ID[setup.lightingPresetId] : null;
   const selectedPose = setup.posePresetId ? POSE_PRESET_BY_ID[setup.posePresetId] : null;
   const selectedCamera = setup.cameraPresetId ? CAMERA_PRESET_BY_ID[setup.cameraPresetId] : null;
@@ -268,7 +255,6 @@ export function WorkspacePreview({
 
   const canContinue = (() => {
     if (workflow.activeStep === "product") return product !== null;
-    if (femaleUnavailable && ["lighting", "pose", "camera", "review"].includes(workflow.activeStep)) return false;
     if (workflow.activeStep === "lighting") return setup.lightingPresetId !== null;
     if (workflow.activeStep === "pose") return setup.posePresetId !== null;
     if (workflow.activeStep === "camera") return setup.cameraPresetId !== null;
@@ -295,10 +281,6 @@ export function WorkspacePreview({
   ];
 
   const renderStep = () => {
-    if (femaleUnavailable && ["lighting", "pose", "camera", "review"].includes(workflow.activeStep)) {
-      return <EmptyModelOptions onChangeModel={openModelSelector} />;
-    }
-
     if (workflow.activeStep === "product") {
       return (
         <div className={styles.productStep}>
@@ -312,8 +294,12 @@ export function WorkspacePreview({
               <div className={styles.productMeta}>
                 <div><strong>{product.fileName}</strong><span>{product.sizeLabel} · Ready</span></div>
                 <div className={styles.productActions}>
-                  <Button type="button" variant="secondary" onClick={() => fileInputRef.current?.click()}>Replace</Button>
-                  <Button type="button" variant="quiet" onClick={removeProduct}>Remove</Button>
+                  <button className={styles.replaceProduct} type="button" onClick={() => fileInputRef.current?.click()}>
+                    <span aria-hidden="true">↻</span> Replace image
+                  </button>
+                  <button className={styles.removeProduct} type="button" onClick={removeProduct}>
+                    <span aria-hidden="true">×</span> Remove
+                  </button>
                 </div>
               </div>
             </div>
