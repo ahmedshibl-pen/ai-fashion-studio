@@ -101,6 +101,19 @@ export function Tabs({
           aria-selected={item.id === activeId}
           tabIndex={item.id === activeId ? 0 : -1}
           onClick={() => onSelect?.(item.id)}
+          onKeyDown={(event) => {
+            const currentIndex = items.findIndex((candidate) => candidate.id === item.id);
+            let nextIndex = currentIndex;
+            if (event.key === "ArrowRight") nextIndex = (currentIndex + 1) % items.length;
+            else if (event.key === "ArrowLeft") nextIndex = (currentIndex - 1 + items.length) % items.length;
+            else if (event.key === "Home") nextIndex = 0;
+            else if (event.key === "End") nextIndex = items.length - 1;
+            else return;
+            event.preventDefault();
+            onSelect?.(items[nextIndex].id);
+            const tablist = event.currentTarget.parentElement;
+            window.requestAnimationFrame(() => tablist?.querySelectorAll<HTMLElement>('[role="tab"]')[nextIndex]?.focus());
+          }}
           key={item.id}
         >
           {item.label}

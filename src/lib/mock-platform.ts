@@ -11,6 +11,7 @@ import type {
   GenerationRuntimeStatus,
   GenerationService,
   MockOutcome,
+  MockPaymentRecord,
   MockProject,
   MockProjectStatus,
   MockUser,
@@ -30,6 +31,7 @@ type MockStore = {
   user: MockUser | null;
   balance: number;
   projects: MockProject[];
+  payments: MockPaymentRecord[];
 };
 
 export class MockServiceError extends Error {
@@ -54,6 +56,72 @@ const DEFAULT_USER: MockUser = {
   email: "ahmed@studio.example",
   initials: "AS",
 };
+
+const DEMO_PRODUCT: ProductAsset = {
+  id: "asset-demo-product",
+  fileName: "editorial-knit.png",
+  mimeType: "image/png",
+  size: 864_000,
+  previewDataUrl: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
+};
+
+const MALE_DEMO_SETUP = {
+  modelId: "male-model-01",
+  lightingPresetId: "clean-softbox",
+  posePresetId: "male-relaxed-front",
+  cameraPresetId: "male-upper-body-close-up",
+} as const;
+
+const FEMALE_DEMO_SETUP = {
+  modelId: "female-model-01",
+  lightingPresetId: "female-clean-softbox",
+  posePresetId: "female-neutral-front",
+  cameraPresetId: "female-high-angle-portrait",
+} as const;
+
+const DEMO_PROJECT_INPUTS: readonly {
+  id: string;
+  name: string;
+  status: MockProjectStatus;
+  setup: typeof MALE_DEMO_SETUP | typeof FEMALE_DEMO_SETUP;
+  resultImagePath: string;
+  updatedAt: string;
+  generationStage?: number;
+  approvedAt?: string;
+}[] = [
+  { id: "campaign-demo-draft", name: "Monochrome Knit Study", status: "draft", setup: MALE_DEMO_SETUP, resultImagePath: "/images/basic-studio/models/male-model-01/camera/upper-body-close-up.webp", updatedAt: "2026-08-25T00:42:00.000Z" },
+  { id: "campaign-demo-payment", name: "Leather Essentials", status: "awaiting-payment", setup: FEMALE_DEMO_SETUP, resultImagePath: "/images/basic-studio/models/female-model-01/camera/high-angle-portrait.webp", updatedAt: "2026-08-24T22:18:00.000Z" },
+  { id: "campaign-demo-queued", name: "Quiet Tailoring", status: "queued", setup: MALE_DEMO_SETUP, resultImagePath: "/images/basic-studio/models/male-model-01/camera/upper-body-close-up.webp", updatedAt: "2026-08-24T20:30:00.000Z" },
+  { id: "campaign-demo-processing", name: "After Hours Denim", status: "processing", setup: FEMALE_DEMO_SETUP, resultImagePath: "/images/basic-studio/models/female-model-01/camera/high-angle-portrait.webp", updatedAt: "2026-08-24T19:05:00.000Z", generationStage: 2 },
+  { id: "campaign-demo-completed", name: "Studio Uniform No. 02", status: "completed", setup: MALE_DEMO_SETUP, resultImagePath: "/images/basic-studio/models/male-model-01/camera/upper-body-close-up.webp", updatedAt: "2026-08-24T17:12:00.000Z", generationStage: 4 },
+  { id: "campaign-demo-approved", name: "Editorial Foundations", status: "approved", setup: FEMALE_DEMO_SETUP, resultImagePath: "/images/basic-studio/models/female-model-01/camera/high-angle-portrait.webp", updatedAt: "2026-08-24T15:44:00.000Z", generationStage: 4, approvedAt: "2026-08-24T15:44:00.000Z" },
+  { id: "campaign-demo-failed", name: "Shadow Line Capsule", status: "failed", setup: MALE_DEMO_SETUP, resultImagePath: "/images/basic-studio/models/male-model-01/camera/upper-body-close-up.webp", updatedAt: "2026-08-24T13:20:00.000Z", generationStage: 2 },
+] as const;
+
+const DEFAULT_PAYMENTS: readonly MockPaymentRecord[] = [
+  { id: "payment-demo-generation", label: "Campaign generation", description: "Studio Uniform No. 02 · Version 01", credits: -40, price: "40 credits", status: "completed", createdAt: "2026-08-24T17:10:00.000Z" },
+  { id: "payment-demo-pack", label: "Starter Credits", description: "Prototype credit package", credits: 100, price: "$18", status: "completed", createdAt: "2026-08-21T11:30:00.000Z" },
+] as const;
+
+function createDemoProjects(): MockProject[] {
+  return DEMO_PROJECT_INPUTS.map((item, index) => ({
+    id: item.id,
+    draftId: `draft-demo-${index + 1}`,
+    name: item.name,
+    studioId: "basic-studio",
+    product: DEMO_PRODUCT,
+    setup: item.setup,
+    status: item.status,
+    generationStage: item.generationStage ?? 0,
+    version: 1,
+    resultImagePath: item.resultImagePath,
+    creditsCost: 40,
+    adjustmentNote: "",
+    createdAt: "2026-08-20T10:00:00.000Z",
+    updatedAt: item.updatedAt,
+    approvedAt: item.approvedAt ?? null,
+  }));
+}
 
 function delay(ms = DEFAULT_LATENCY) {
   return new Promise<void>((resolve) => window.setTimeout(resolve, ms));
@@ -119,8 +187,21 @@ function validateProject(value: unknown): MockProject | null {
   };
 }
 
+function validatePayment(value: unknown): MockPaymentRecord | null {
+  if (!isRecord(value)) return null;
+  if (typeof value.id !== "string" || typeof value.label !== "string" || typeof value.description !== "string") return null;
+  if (typeof value.credits !== "number" || typeof value.price !== "string" || typeof value.createdAt !== "string") return null;
+  if (value.status !== "completed" && value.status !== "failed") return null;
+  return { id: value.id, label: value.label, description: value.description, credits: value.credits, price: value.price, status: value.status, createdAt: value.createdAt };
+}
+
+function withDemoProjects(projects: MockProject[]) {
+  const ids = new Set(projects.map((project) => project.id));
+  return [...projects, ...createDemoProjects().filter((project) => !ids.has(project.id))];
+}
+
 function defaultStore(): MockStore {
-  return { version: 1, user: null, balance: DEFAULT_BALANCE, projects: [] };
+  return { version: 1, user: null, balance: DEFAULT_BALANCE, projects: createDemoProjects(), payments: [...DEFAULT_PAYMENTS] };
 }
 
 function readStore(): MockStore {
@@ -134,7 +215,8 @@ function readStore(): MockStore {
       ? { id: parsed.user.id, name: parsed.user.name, email: parsed.user.email, initials: parsed.user.initials }
       : null;
     const projects = Array.isArray(parsed.projects) ? parsed.projects.map(validateProject).filter((project): project is MockProject => project !== null) : [];
-    return { version: 1, user, balance: typeof parsed.balance === "number" && parsed.balance >= 0 ? parsed.balance : DEFAULT_BALANCE, projects };
+    const payments = Array.isArray(parsed.payments) ? parsed.payments.map(validatePayment).filter((payment): payment is MockPaymentRecord => payment !== null) : [...DEFAULT_PAYMENTS];
+    return { version: 1, user, balance: typeof parsed.balance === "number" && parsed.balance >= 0 ? parsed.balance : DEFAULT_BALANCE, projects: withDemoProjects(projects), payments };
   } catch {
     return defaultStore();
   }
@@ -293,20 +375,53 @@ export const mockBillingService: BillingService = {
     await delay(40);
     return CREDIT_PACKAGES;
   },
+  async getPaymentHistory() {
+    await delay(60);
+    return [...readStore().payments].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  },
+  async purchaseCredits(packageId, outcome) {
+    await delay(420);
+    const pack = CREDIT_PACKAGES.find((item) => item.id === packageId);
+    if (!pack) throw new MockServiceError("Choose a valid credit package.", "invalid-input");
+    const store = readStore();
+    const payment: MockPaymentRecord = {
+      id: createId("payment"),
+      label: pack.name,
+      description: "Prototype credit package",
+      credits: outcome === "success" ? pack.credits : 0,
+      price: pack.price,
+      status: outcome === "success" ? "completed" : "failed",
+      createdAt: new Date().toISOString(),
+    };
+    store.payments.unshift(payment);
+    if (outcome === "failure") {
+      writeStore(store);
+      throw new MockServiceError("Mock credit purchase failed. No credits were added.", "payment-failed");
+    }
+    store.balance += pack.credits;
+    writeStore(store);
+    return { balance: store.balance, payment };
+  },
   async checkout(projectId, packageId, outcome: MockOutcome) {
     await delay(420);
-    if (outcome === "failure") throw new MockServiceError("Mock payment failed. Switch the prototype outcome to success and try again.", "payment-failed");
     const store = readStore();
     const projectIndex = store.projects.findIndex((project) => project.id === projectId);
     if (projectIndex < 0) throw new MockServiceError("Project not found.", "not-found");
+    if (outcome === "failure") {
+      store.payments.unshift({ id: createId("payment"), label: "Campaign generation", description: store.projects[projectIndex].name, credits: 0, price: `${store.projects[projectIndex].creditsCost} credits`, status: "failed", createdAt: new Date().toISOString() });
+      writeStore(store);
+      throw new MockServiceError("Mock payment failed. Switch the prototype outcome to success and try again.", "payment-failed");
+    }
     if (packageId !== "balance") {
       const pack = CREDIT_PACKAGES.find((item) => item.id === packageId);
       if (!pack) throw new MockServiceError("Choose a valid credit package.", "invalid-input");
       store.balance += pack.credits;
+      store.payments.unshift({ id: createId("payment"), label: pack.name, description: "Prototype credit package", credits: pack.credits, price: pack.price, status: "completed", createdAt: new Date().toISOString() });
     }
     const project = store.projects[projectIndex];
     if (store.balance < project.creditsCost) throw new MockServiceError("There are not enough credits for this campaign.", "insufficient-credits");
     store.balance -= project.creditsCost;
+    store.payments.unshift({ id: createId("payment"), label: "Campaign generation", description: project.name, credits: -project.creditsCost, price: `${project.creditsCost} credits`, status: "completed", createdAt: new Date().toISOString() });
     const updated = { ...project, status: "queued" as const, generationStage: 0, updatedAt: new Date().toISOString() };
     store.projects[projectIndex] = updated;
     writeStore(store);

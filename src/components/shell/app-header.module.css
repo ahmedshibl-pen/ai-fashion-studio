@@ -63,6 +63,7 @@
 }
 
 .accountSummary {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 1.25rem;
@@ -106,6 +107,63 @@
   text-decoration: none;
   font-size: 0.64rem;
   font-weight: 600;
+  cursor: pointer;
+}
+
+.accountMenu {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.menuPanel {
+  position: absolute;
+  top: calc(100% + 0.65rem);
+  right: 0;
+  z-index: 30;
+  width: min(17rem, calc(100vw - 2rem));
+  padding: 0.45rem;
+  color: var(--text-primary);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow-elevated);
+}
+
+.menuPanel > div {
+  display: grid;
+  gap: 0.18rem;
+  padding: 0.8rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.menuPanel > div strong {
+  font-size: 0.75rem;
+}
+
+.menuPanel > div span {
+  overflow-wrap: anywhere;
+  color: var(--text-secondary);
+  font-size: 0.62rem;
+}
+
+.menuPanel > a,
+.menuPanel > button {
+  width: 100%;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  padding: 0.65rem 0.8rem;
+  color: var(--text-primary);
+  background: transparent;
+  border: 0;
+  text-decoration: none;
+  font-size: 0.7rem;
+  text-align: left;
+}
+
+.menuPanel > a:hover,
+.menuPanel > button:hover {
+  background: var(--surface-light);
 }
 
 @media (max-width: 820px) {

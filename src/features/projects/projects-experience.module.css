@@ -1,0 +1,338 @@
+.page {
+  min-height: 100svh;
+  background: var(--canvas-light);
+}
+
+.main {
+  width: min(calc(100% - 3rem), var(--content-wide));
+  margin-inline: auto;
+  padding: clamp(2rem, 4vw, 4.5rem) 0 5rem;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+  padding-bottom: clamp(1.75rem, 3vw, 3rem);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.eyebrow {
+  margin: 0 0 0.65rem;
+  color: var(--accent-bronze);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.pageHeader h1,
+.toolbar h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 0.96;
+}
+
+.pageHeader h1 {
+  font-size: clamp(3.1rem, 7vw, 7.5rem);
+}
+
+.pageHeader p:last-child {
+  max-width: 45rem;
+  margin: 1rem 0 0;
+  color: var(--text-secondary);
+  font-size: clamp(0.86rem, 1.2vw, 1rem);
+}
+
+.primaryLink,
+.inlineLink {
+  min-height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.1rem;
+  padding: 0.85rem 1.1rem;
+  color: var(--text-on-dark);
+  background: var(--brand-primary);
+  border: 1px solid var(--brand-primary);
+  text-decoration: none;
+  font-size: 0.73rem;
+  font-weight: 600;
+}
+
+.primaryLink:hover,
+.inlineLink:hover {
+  background: var(--brand-primary-hover);
+}
+
+.statusOverview {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  border: 1px solid var(--border-subtle);
+  border-top: 0;
+  background: var(--surface-light);
+}
+
+.statusOverview > div {
+  min-width: 0;
+  min-height: 78px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-right: 1px solid var(--border-subtle);
+}
+
+.statusOverview > div:last-child {
+  border-right: 0;
+}
+
+.statusOverview strong {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.projectSection {
+  padding-top: clamp(2.5rem, 5vw, 5rem);
+}
+
+.toolbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.4rem;
+}
+
+.toolbar h2 {
+  font-size: clamp(2rem, 4vw, 4rem);
+}
+
+.toolbar > span {
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+}
+
+.tabsScroll {
+  max-width: 100%;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.projectGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.projectCard {
+  min-width: 0;
+  display: grid;
+  grid-template-rows: minmax(18rem, 26vw) auto;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-subtle);
+  transition: border-color 200ms ease, transform 200ms ease;
+}
+
+.projectCard:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+}
+
+.projectImage {
+  position: relative;
+  min-height: 18rem;
+  overflow: hidden;
+  background: var(--surface-beige);
+}
+
+.projectImage img {
+  object-fit: cover;
+  transition: transform 380ms ease;
+}
+
+.projectCard:hover .projectImage img {
+  transform: scale(1.018);
+}
+
+.projectImage > span {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1;
+  padding: 0.5rem 0.62rem;
+  color: var(--text-on-dark);
+  background: color-mix(in srgb, var(--canvas-dark) 84%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.61rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.projectCopy {
+  min-width: 0;
+  display: grid;
+  gap: 1.25rem;
+  padding: 1.2rem;
+}
+
+.cardTopline,
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.cardTopline > span:last-child,
+.cardFooter > span {
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+}
+
+.projectCopy p {
+  margin: 0 0 0.35rem;
+  color: var(--text-secondary);
+  font-size: 0.68rem;
+}
+
+.projectCopy h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 2.3vw, 2.15rem);
+  font-weight: 500;
+  line-height: 1.04;
+}
+
+.projectCopy h3 a,
+.cardFooter a {
+  text-decoration: none;
+}
+
+.projectCopy h3 a:hover,
+.cardFooter a:hover {
+  color: var(--brand-primary);
+}
+
+.cardFooter {
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.cardFooter a {
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.projectSkeleton {
+  min-height: 31rem;
+}
+
+@media (max-width: 1120px) {
+  .statusOverview {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .statusOverview > div:nth-child(4) {
+    border-right: 0;
+  }
+
+  .statusOverview > div:nth-child(n + 5) {
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .projectGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .main {
+    width: min(calc(100% - 2rem), var(--content-wide));
+    padding-top: 2rem;
+  }
+
+  .pageHeader {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .primaryLink {
+    align-self: flex-start;
+  }
+
+  .statusOverview {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .statusOverview > div,
+  .statusOverview > div:nth-child(4) {
+    min-height: 66px;
+    border-right: 1px solid var(--border-subtle);
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .statusOverview > div:nth-child(odd) {
+    border-right: 1px solid var(--border-subtle);
+  }
+
+  .statusOverview > div:nth-child(even) {
+    border-right: 0;
+  }
+
+  .statusOverview > div:last-child {
+    grid-column: 1 / -1;
+    border-right: 0;
+  }
+
+  .statusOverview > div:first-child,
+  .statusOverview > div:nth-child(2) {
+    border-top: 0;
+  }
+
+  .toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .projectGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .projectCard {
+    grid-template-rows: minmax(22rem, 110vw) auto;
+  }
+}
+
+@media (max-width: 360px) {
+  .main {
+    width: min(calc(100% - 1.25rem), var(--content-wide));
+  }
+
+  .statusOverview > div {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .cardTopline {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .projectCard,
+  .projectImage img {
+    transform: none !important;
+  }
+}

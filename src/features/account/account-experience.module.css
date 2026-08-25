@@ -1,0 +1,365 @@
+.page {
+  min-height: 100svh;
+  background: var(--canvas-light);
+}
+
+.main {
+  width: min(calc(100% - 3rem), var(--content-wide));
+  margin-inline: auto;
+  padding: clamp(2rem, 4vw, 4.5rem) 0 5rem;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+  padding-bottom: clamp(1.75rem, 3vw, 3rem);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.eyebrow {
+  margin: 0 0 0.65rem;
+  color: var(--accent-bronze);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.pageHeader h1,
+.accountGrid h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 500;
+}
+
+.pageHeader h1 {
+  font-size: clamp(3rem, 6vw, 6.8rem);
+  line-height: 0.96;
+}
+
+.pageHeader p:last-child {
+  max-width: 43rem;
+  margin: 1rem 0 0;
+  color: var(--text-secondary);
+}
+
+.main > [role="status"],
+.main > [role="alert"] {
+  margin-top: 1rem;
+}
+
+.accountGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(18rem, 0.75fr);
+  gap: 1rem;
+  padding-top: clamp(1.5rem, 3vw, 3rem);
+}
+
+.profileCard,
+.balanceCard,
+.historyCard,
+.securityCard {
+  min-width: 0;
+  padding: clamp(1.4rem, 2.5vw, 2.5rem);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-subtle);
+}
+
+.profileTopline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.profileTopline > span {
+  width: 3.4rem;
+  height: 3.4rem;
+  display: grid;
+  place-items: center;
+  color: var(--text-on-dark);
+  background: var(--canvas-walnut);
+  border: 1px solid var(--border-on-dark);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.profileCard h2,
+.historyCard h2,
+.securityCard h2 {
+  font-size: clamp(2rem, 3.4vw, 3.5rem);
+  line-height: 1;
+}
+
+.profileCard dl {
+  margin: 2.5rem 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.profileCard dl > div {
+  display: grid;
+  grid-template-columns: minmax(7rem, 0.45fr) minmax(0, 1fr);
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.profileCard dt,
+.profileCard dd {
+  margin: 0;
+  font-size: 0.77rem;
+}
+
+.profileCard dt {
+  color: var(--text-secondary);
+}
+
+.profileCard dd {
+  overflow-wrap: anywhere;
+  font-weight: 600;
+  text-align: right;
+}
+
+.profileActions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.balanceCard {
+  display: flex;
+  align-items: stretch;
+  flex-direction: column;
+  color: var(--text-on-dark);
+  background: var(--canvas-walnut);
+  border-color: var(--border-on-dark);
+}
+
+.balanceCard h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  color: var(--accent-champagne);
+  font-size: clamp(3.5rem, 7vw, 7rem);
+  line-height: 0.9;
+}
+
+.balanceCard h2 span {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+}
+
+.balanceCard > div > p:last-child,
+.balanceCard > p {
+  color: var(--text-on-dark-muted);
+}
+
+.balanceCard > div > p:last-child {
+  margin: 0.8rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.balanceCard > p {
+  margin: auto 0 2rem;
+  padding-top: 3rem;
+  font-size: 0.79rem;
+}
+
+.historyCard {
+  grid-column: 1 / -1;
+}
+
+.historyCard > header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1.5rem;
+}
+
+.historyCard > header > span {
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+}
+
+.paymentList {
+  border-top: 1px solid var(--border-subtle);
+}
+
+.paymentList article {
+  display: grid;
+  grid-template-columns: minmax(11rem, 0.65fr) minmax(0, 1fr) minmax(9rem, 0.45fr);
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.2rem 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.paymentList article > div:first-child,
+.paymentList article > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.paymentList article > div:first-child {
+  align-items: flex-start;
+}
+
+.paymentList article > div:first-child > span:last-child,
+.paymentList article > div:last-child span {
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.61rem;
+  text-transform: uppercase;
+}
+
+.paymentList article p {
+  margin: 0.2rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+}
+
+.paymentList article > div:last-child {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.creditPositive strong {
+  color: var(--success);
+}
+
+.creditNegative strong {
+  color: var(--text-primary);
+}
+
+.securityCard {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(14rem, 0.55fr) minmax(0, 1fr) minmax(14rem, 0.8fr);
+  align-items: start;
+  gap: 2rem;
+}
+
+.securityCard > p:nth-of-type(2) {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.securityCard ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.securityCard li {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.55rem 0;
+  font-size: 0.73rem;
+}
+
+.securityCard li span {
+  color: var(--success);
+}
+
+.packageList {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.prototypeControls {
+  display: flex;
+  gap: 1rem;
+  margin: 1.25rem 0 0;
+  padding: 1rem;
+  border: 1px dashed var(--border-strong);
+}
+
+.prototypeControls legend {
+  padding-inline: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.prototypeControls label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+}
+
+@media (max-width: 850px) {
+  .accountGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .historyCard,
+  .securityCard {
+    grid-column: auto;
+  }
+
+  .securityCard {
+    grid-template-columns: 1fr;
+  }
+
+  .balanceCard > p {
+    margin-top: 1rem;
+    padding-top: 1rem;
+  }
+}
+
+@media (max-width: 650px) {
+  .main {
+    width: min(calc(100% - 2rem), var(--content-wide));
+    padding-top: 2rem;
+  }
+
+  .pageHeader {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .paymentList article {
+    grid-template-columns: 1fr auto;
+  }
+
+  .paymentList article > div:nth-child(2) {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .paymentList article > div:first-child {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .paymentList article > div:last-child {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}
+
+@media (max-width: 360px) {
+  .main {
+    width: min(calc(100% - 1.25rem), var(--content-wide));
+  }
+
+  .profileCard dl > div {
+    grid-template-columns: 1fr;
+  }
+
+  .profileCard dd {
+    text-align: left;
+  }
+}

@@ -65,6 +65,16 @@ export type CreditPackage = {
 
 export type MockOutcome = "success" | "failure";
 
+export type MockPaymentRecord = {
+  id: string;
+  label: string;
+  description: string;
+  credits: number;
+  price: string;
+  status: "completed" | "failed";
+  createdAt: string;
+};
+
 export type CreateProjectInput = {
   product: ProductAsset;
   setup: ProjectSetup;
@@ -93,6 +103,8 @@ export interface ProjectService {
 export interface BillingService {
   getBalance(): Promise<number>;
   getPackages(): Promise<readonly CreditPackage[]>;
+  getPaymentHistory(): Promise<MockPaymentRecord[]>;
+  purchaseCredits(packageId: CreditPackage["id"], outcome: MockOutcome): Promise<{ balance: number; payment: MockPaymentRecord }>;
   checkout(projectId: string, packageId: CreditPackage["id"] | "balance", outcome: MockOutcome): Promise<{ balance: number; project: MockProject }>;
 }
 
