@@ -479,9 +479,9 @@ export function WorkspacePreview({
           <aside className={styles.previewPanel}>
             <div className={styles.previewStage} data-has-scene={Boolean(previewAsset)}>
               {previewAsset ? (
-                <Image src={previewAsset.imagePath} fill sizes="(max-width: 900px) 100vw, 58vw" alt={previewAsset.accessibilityLabel} priority />
+                <Image src={previewAsset.imagePath} fill sizes="(max-width: 900px) 100vw, 58vw" alt={previewAsset.accessibilityLabel} loading="eager" />
               ) : (
-                <Image className={styles.modelImage} src={model.imagePath} width={896} height={1200} sizes="(max-width: 900px) 70vw, 34vw" alt={model.accessibilityLabel} priority />
+                <Image className={styles.modelImage} src={model.imagePath} width={896} height={1200} sizes="(max-width: 900px) 70vw, 34vw" alt={model.accessibilityLabel} loading="eager" />
               )}
               {product ? (
                 <div className={styles.productInset}>

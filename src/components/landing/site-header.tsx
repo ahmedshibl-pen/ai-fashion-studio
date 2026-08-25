@@ -48,9 +48,12 @@ export function SiteHeader() {
 
     const previousOverflow = document.body.style.overflow;
     const navigation = mobileNavigationRef.current;
-    const focusable = navigation?.querySelectorAll<HTMLElement>("a[href], button:not([disabled])");
+    const focusable: HTMLElement[] = [
+      ...(menuButtonRef.current ? [menuButtonRef.current] : []),
+      ...(navigation?.querySelectorAll<HTMLElement>("a[href]") ?? []),
+    ];
     document.body.style.overflow = "hidden";
-    focusable?.[0]?.focus();
+    focusable[0]?.focus();
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -58,7 +61,7 @@ export function SiteHeader() {
         menuButtonRef.current?.focus();
       }
 
-      if (event.key === "Tab" && focusable?.length) {
+      if (event.key === "Tab" && focusable.length) {
         const first = focusable[0];
         const last = focusable[focusable.length - 1];
 
@@ -124,6 +127,9 @@ export function SiteHeader() {
         id="mobile-navigation"
         className={styles.mobileNavigation}
         data-open={menuOpen}
+        role="dialog"
+        aria-label="Mobile navigation"
+        aria-modal="true"
         aria-hidden={!menuOpen}
       >
         <div className={styles.mobileNavigationInner}>

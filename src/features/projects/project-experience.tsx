@@ -189,7 +189,7 @@ export function ProjectExperience({ projectId }: { projectId: string }) {
         {isGenerating ? (
           <div className={styles.generationLayout}>
             <section className={styles.generationPreview} aria-label="Generation preview">
-              <Image src={project.resultImagePath} fill sizes="(max-width: 900px) 100vw, 62vw" alt="Campaign preview being generated" priority />
+              <Image src={project.resultImagePath} fill sizes="(max-width: 900px) 100vw, 62vw" alt="Campaign preview being generated" loading="eager" />
               <div className={styles.processingVeil}><span className={styles.processingMark} aria-hidden="true">A</span><p>{project.status === "queued" ? "Campaign queued" : GENERATION_STAGES[project.generationStage]}</p></div>
             </section>
             <section className={styles.progressPanel} aria-live="polite">
@@ -219,7 +219,7 @@ export function ProjectExperience({ projectId }: { projectId: string }) {
         {project.status === "completed" || project.status === "approved" ? (
           <div className={styles.resultLayout}>
             <section className={styles.resultPreview}>
-              <Image src={project.resultImagePath} fill sizes="(max-width: 900px) 100vw, 64vw" alt={`Generated campaign result, version ${project.version}`} priority />
+              <Image src={project.resultImagePath} fill sizes="(max-width: 900px) 100vw, 64vw" alt={`Generated campaign result, version ${project.version}`} loading="eager" />
               <span>Version {String(project.version).padStart(2, "0")}</span>
             </section>
             <aside className={styles.reviewPanel}>
@@ -238,7 +238,7 @@ export function ProjectExperience({ projectId }: { projectId: string }) {
 
         {project.status === "delivered" ? (
           <div className={styles.deliveryLayout}>
-            <section className={styles.deliveryPreview}><Image src={project.resultImagePath} fill sizes="(max-width: 900px) 100vw, 62vw" alt="Approved campaign image ready for download" priority /><span>Approved</span></section>
+            <section className={styles.deliveryPreview}><Image src={project.resultImagePath} fill sizes="(max-width: 900px) 100vw, 62vw" alt="Approved campaign image ready for download" loading="eager" /><span>Approved</span></section>
             <aside className={styles.deliveryPanel}><StatusBadge tone="success">Files ready</StatusBadge><h2>Campaign delivery is ready.</h2><p>The local test assets are prepared in web-compatible formats. Downloads stay in this tab.</p>
               <div className={styles.downloads}>{downloads.map((download) => <a href={download.href} download={download.fileName} key={download.label}>{download.label}<span aria-hidden="true">↓</span></a>)}</div>
               <dl className={styles.deliveryDetails}><div><dt>Project</dt><dd>{project.id}</dd></div><div><dt>Version</dt><dd>{project.version}</dd></div><div><dt>Approved</dt><dd>{project.approvedAt ? new Date(project.approvedAt).toLocaleDateString() : "Today"}</dd></div></dl>

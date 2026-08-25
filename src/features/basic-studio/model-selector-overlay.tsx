@@ -136,7 +136,7 @@ export function ModelSelectorOverlay({ initialModelId, onChoose }: ModelSelector
                   height={2400}
                   sizes="(max-width: 700px) 72vw, 44vw"
                   alt={model.accessibilityLabel}
-                  priority={index === initialIndex}
+                  loading={index === initialIndex ? "eager" : "lazy"}
                 />
                 <span className={styles.modelLabel}>{model.displayName}</span>
               </button>
