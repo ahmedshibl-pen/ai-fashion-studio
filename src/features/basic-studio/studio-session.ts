@@ -21,6 +21,7 @@ import {
   isPosePresetId,
   type PosePresetId,
 } from "./pose-presets";
+import type { ProductAsset } from "@/types/mock-platform";
 
 export type ModelSetupSelection = {
   lightingPresetId: LightingPresetId | null;
@@ -51,6 +52,7 @@ export type StudioWorkflowSession = {
   modelId: StudioModelId;
   activeStep: StudioStep;
   setups: ModelSetupSelections;
+  product: ProductAsset | null;
 };
 
 export function readSessionStorage(key: string): string | null {
@@ -112,6 +114,15 @@ export function createDefaultModelSetups(): ModelSetupSelections {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function validateStoredProduct(value: unknown): ProductAsset | null {
+  if (!isRecord(value)) return null;
+  const mimeType = value.mimeType;
+  if (mimeType !== "image/png" && mimeType !== "image/jpeg" && mimeType !== "image/webp") return null;
+  if (typeof value.id !== "string" || typeof value.fileName !== "string" || typeof value.size !== "number") return null;
+  if (typeof value.previewDataUrl !== "string" || !value.previewDataUrl.startsWith("data:image/")) return null;
+  return { id: value.id, fileName: value.fileName, mimeType, size: value.size, previewDataUrl: value.previewDataUrl };
 }
 
 export function validateStoredModelSetup(
@@ -183,6 +194,7 @@ export function createDefaultWorkflowSession(
     modelId,
     activeStep: "product",
     setups: createDefaultModelSetups(),
+    product: null,
   };
 }
 
@@ -211,6 +223,7 @@ export function parseStoredWorkflowSession(
   const setups = parseStoredModelSetups(
     typeof parsed.setups === "object" ? JSON.stringify(parsed.setups) : null,
   );
+  const product = validateStoredProduct(parsed.product);
 
-  return { modelId, activeStep, setups };
+  return { modelId, activeStep, setups, product };
 }

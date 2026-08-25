@@ -1,7 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import {
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -12,6 +14,14 @@ import {
 
 import { AppHeader } from "@/components/shell/app-header";
 import { Button, StatusBadge, StatusMessage } from "@/components/ui";
+import { MockAuthDialog } from "@/features/auth/mock-auth-dialog";
+import {
+  MockServiceError,
+  mockAuthService,
+  mockProductAssetService,
+  mockProjectService,
+} from "@/lib/mock-platform";
+import type { MockUser, ProductAsset } from "@/types/mock-platform";
 
 import {
   CAMERA_PRESET_BY_ID,
@@ -82,7 +92,7 @@ const STEP_COPY: Record<StudioStep, { eyebrow: string; title: string; descriptio
 const ACCEPTED_TYPES = new Set(["image/png", "image/jpeg", "image/webp"]);
 const MAX_PRODUCT_BYTES = 10 * 1024 * 1024;
 
-type ProductFile = { fileName: string; sizeLabel: string; previewUrl: string };
+type ProductFile = ProductAsset & { sizeLabel: string; previewUrl: string };
 type Preset = { id: string; label: string; description: string; thumbnailPath: string };
 
 function formatBytes(bytes: number) {
@@ -133,17 +143,26 @@ function PresetGrid({
 export function WorkspacePreview({
   modelId: initialModelId,
   selectorOpen: initiallySelectorOpen,
+  initialStep,
 }: {
   modelId: StudioModelId;
   selectorOpen: boolean;
+  initialStep: StudioStep;
 }) {
-  const [workflow, setWorkflow] = useState<StudioWorkflowSession>(() => createDefaultWorkflowSession(initialModelId));
+  const router = useRouter();
+  const [workflow, setWorkflow] = useState<StudioWorkflowSession>(() => ({
+    ...createDefaultWorkflowSession(initialModelId),
+    activeStep: initialStep,
+  }));
   const [selectorOpen, setSelectorOpen] = useState(initiallySelectorOpen);
   const [selectorReason, setSelectorReason] = useState<"entry" | "change">(initiallySelectorOpen ? "entry" : "change");
   const [product, setProduct] = useState<ProductFile | null>(null);
   const [productError, setProductError] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
-  const [reviewMessage, setReviewMessage] = useState<string | null>(null);
+  const [reviewMessage, setReviewMessage] = useState<{ tone: "success" | "error" | "information"; text: string } | null>(null);
+  const [authOpen, setAuthOpen] = useState(false);
+  const [pendingProjectId, setPendingProjectId] = useState<string | null>(null);
+  const [savingDraft, setSavingDraft] = useState(false);
   const productUrlRef = useRef<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -151,12 +170,15 @@ export function WorkspacePreview({
     const restored = parseStoredWorkflowSession(readSessionStorage(WORKFLOW_STORAGE_KEY), initialModelId);
     // Browser storage is intentionally restored only after hydration.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setWorkflow({ ...restored, modelId: initialModelId, activeStep: "product" });
+    setWorkflow({ ...restored, modelId: initialModelId, activeStep: initialStep });
+    if (restored.product) {
+      setProduct({ ...restored.product, sizeLabel: formatBytes(restored.product.size), previewUrl: restored.product.previewDataUrl });
+    }
 
     return () => {
       if (productUrlRef.current) URL.revokeObjectURL(productUrlRef.current);
     };
-  }, [initialModelId]);
+  }, [initialModelId, initialStep]);
 
   const commitWorkflow = (
     updater: StudioWorkflowSession | ((current: StudioWorkflowSession) => StudioWorkflowSession),
@@ -216,7 +238,7 @@ export function WorkspacePreview({
     }));
   };
 
-  const acceptProductFile = (file: File | undefined) => {
+  const acceptProductFile = async (file: File | undefined) => {
     setDragging(false);
     setProductError(null);
     if (!file) return;
@@ -231,17 +253,25 @@ export function WorkspacePreview({
     if (productUrlRef.current) URL.revokeObjectURL(productUrlRef.current);
     const previewUrl = URL.createObjectURL(file);
     productUrlRef.current = previewUrl;
-    setProduct({ fileName: file.name, sizeLabel: formatBytes(file.size), previewUrl });
+    try {
+      const asset = await mockProductAssetService.createLocalAsset(file);
+      setProduct({ ...asset, sizeLabel: formatBytes(asset.size), previewUrl });
+      commitWorkflow((current) => ({ ...current, product: asset }));
+    } catch (caught) {
+      URL.revokeObjectURL(previewUrl);
+      productUrlRef.current = null;
+      setProductError(caught instanceof MockServiceError ? caught.message : "The product preview could not be prepared.");
+    }
   };
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    acceptProductFile(event.target.files?.[0]);
+    void acceptProductFile(event.target.files?.[0]);
     event.target.value = "";
   };
 
   const handleDrop = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
-    acceptProductFile(event.dataTransfer.files?.[0]);
+    void acceptProductFile(event.dataTransfer.files?.[0]);
   };
 
   const removeProduct = () => {
@@ -251,6 +281,7 @@ export function WorkspacePreview({
     }
     setProduct(null);
     setProductError(null);
+    commitWorkflow((current) => ({ ...current, product: null }));
   };
 
   const canContinue = (() => {
@@ -270,6 +301,53 @@ export function WorkspacePreview({
   const previousStep = () => {
     const previous = STUDIO_STEPS[currentStepIndex - 1];
     if (previous) goToStep(previous);
+  };
+
+  const closeAuth = useCallback(() => {
+    setAuthOpen(false);
+    const params = new URLSearchParams(window.location.search);
+    params.delete("auth");
+    params.delete("draft");
+    window.history.replaceState(null, "", `${window.location.pathname}?${params.toString()}`);
+  }, []);
+
+  const continueAfterAuth = useCallback((user: MockUser) => {
+    void user;
+    setAuthOpen(false);
+    if (pendingProjectId) router.push(`/checkout?project=${encodeURIComponent(pendingProjectId)}`);
+  }, [pendingProjectId, router]);
+
+  const generateCampaign = async () => {
+    if (!product || !setup.lightingPresetId || !setup.posePresetId || !setup.cameraPresetId) return;
+    setSavingDraft(true);
+    setReviewMessage({ tone: "information", text: "Saving the local campaign draft…" });
+    try {
+      const project = await mockProjectService.createDraft({
+        product,
+        setup: {
+          modelId,
+          lightingPresetId: setup.lightingPresetId,
+          posePresetId: setup.posePresetId,
+          cameraPresetId: setup.cameraPresetId,
+        },
+      });
+      const user = await mockAuthService.getSession();
+      if (user) {
+        router.push(`/checkout?project=${encodeURIComponent(project.id)}`);
+        return;
+      }
+      setPendingProjectId(project.id);
+      setReviewMessage({ tone: "success", text: "Draft saved locally. Sign in to continue." });
+      const params = new URLSearchParams(window.location.search);
+      params.set("auth", "signin");
+      params.set("draft", project.draftId);
+      window.history.pushState(null, "", `${window.location.pathname}?${params.toString()}`);
+      setAuthOpen(true);
+    } catch (caught) {
+      setReviewMessage({ tone: "error", text: caught instanceof MockServiceError ? caught.message : "The campaign draft could not be saved." });
+    } finally {
+      setSavingDraft(false);
+    }
   };
 
   const setupItems = [
@@ -368,7 +446,7 @@ export function WorkspacePreview({
           <div><span>Campaign cost</span><strong>40 credits</strong></div>
           <div><span>Balance after</span><strong>200 credits</strong></div>
         </div>
-        {reviewMessage ? <StatusMessage tone="success">{reviewMessage}</StatusMessage> : null}
+        {reviewMessage ? <StatusMessage tone={reviewMessage.tone}>{reviewMessage.text}</StatusMessage> : null}
       </div>
     );
   };
@@ -425,7 +503,7 @@ export function WorkspacePreview({
             <footer className={styles.actions}>
               <Button type="button" variant="secondary" onClick={previousStep} disabled={currentStepIndex === 0}>Previous</Button>
               {workflow.activeStep === "review" ? (
-                <Button type="button" disabled={!canContinue} onClick={() => setReviewMessage("Creative setup saved. Mock generation is connected in Checkpoint 4.")}>Generate Campaign <span aria-hidden="true">→</span></Button>
+                <Button type="button" disabled={!canContinue || savingDraft} onClick={() => void generateCampaign()}>{savingDraft ? "Saving draft…" : "Generate Campaign"} <span aria-hidden="true">→</span></Button>
               ) : (
                 <Button type="button" disabled={!canContinue} onClick={continueWorkflow}>Continue <span aria-hidden="true">→</span></Button>
               )}
@@ -434,6 +512,7 @@ export function WorkspacePreview({
         </div>
       </main>
       {selectorOpen ? <ModelSelectorOverlay initialModelId={modelId} onChoose={chooseModel} /> : null}
+      <MockAuthDialog open={authOpen} onClose={closeAuth} onAuthenticated={continueAfterAuth} />
     </div>
   );
 }

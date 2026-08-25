@@ -1,0 +1,107 @@
+.authBody {
+  display: grid;
+  gap: 1rem;
+}
+
+.draftNotice {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.85rem;
+  border: 1px solid color-mix(in srgb, var(--success) 30%, transparent);
+  background: color-mix(in srgb, var(--success) 6%, var(--surface-elevated));
+}
+
+.draftNotice > span {
+  width: 1.5rem;
+  height: 1.5rem;
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  color: var(--text-on-dark);
+  background: var(--success);
+  font-size: 0.65rem;
+}
+
+.draftNotice strong {
+  font-size: 0.72rem;
+}
+
+.draftNotice p,
+.disclaimer {
+  margin: 0.15rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.65rem;
+  line-height: 1.55;
+}
+
+.methodStack,
+.form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.emailChoice {
+  min-height: 48px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-elevated);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.emailChoice:hover {
+  color: var(--brand-primary);
+  border-color: var(--brand-primary);
+}
+
+.form label {
+  color: var(--text-secondary);
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.form input {
+  min-height: 48px;
+  padding: 0.75rem;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-light);
+  font-size: 0.78rem;
+}
+
+.form input:focus {
+  border-color: var(--brand-primary);
+}
+
+.formActions {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.prototypeCode {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  color: var(--text-on-dark);
+  background: var(--canvas-dark);
+}
+
+.prototypeCode span {
+  color: var(--text-on-dark-muted);
+  font-size: 0.64rem;
+}
+
+.prototypeCode strong {
+  font-family: var(--font-mono);
+  letter-spacing: 0.16em;
+}
+
+.disclaimer {
+  text-align: center;
+}
+
+@media (max-width: 520px) {
+  .formActions > button {
+    flex: 1;
+  }
+}

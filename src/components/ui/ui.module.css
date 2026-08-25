@@ -641,7 +641,15 @@
 
   .dialog {
     width: 100%;
-    max-height: 96svh;
+    height: 100svh;
+    max-height: none;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .overlay:has(.dialog) {
+    place-items: stretch;
+    padding: 0;
   }
 
   .sheet {
