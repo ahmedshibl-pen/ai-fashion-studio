@@ -1,0 +1,90 @@
+export const GARMENT_CATEGORIES = [
+  "top",
+  "shirt",
+  "jacket",
+  "dress",
+  "trousers",
+  "skirt",
+  "matching-set",
+  "accessory",
+] as const;
+
+export const GARMENT_SAMPLE_SIZES = ["XS", "S", "M", "L", "XL", "XXL"] as const;
+export const GARMENT_FITS = ["slim", "regular", "relaxed", "oversized"] as const;
+export const FABRIC_BEHAVIORS = [
+  "structured",
+  "fluid",
+  "stretch",
+  "lightweight",
+  "heavyweight",
+] as const;
+
+export type GarmentCategory = (typeof GARMENT_CATEGORIES)[number];
+export type GarmentSampleSize = (typeof GARMENT_SAMPLE_SIZES)[number];
+export type GarmentFit = (typeof GARMENT_FITS)[number];
+export type FabricBehavior = (typeof FABRIC_BEHAVIORS)[number];
+
+export type GarmentDimensions = {
+  chestCm?: number;
+  waistCm?: number;
+  hipCm?: number;
+  lengthCm?: number;
+};
+
+export type ProductSpecification = {
+  garmentCategory: GarmentCategory;
+  sampleSize: GarmentSampleSize;
+  intendedFit: GarmentFit;
+  fabricBehavior: FabricBehavior;
+  dimensions?: GarmentDimensions;
+};
+
+export const DEFAULT_PRODUCT_SPECIFICATION: ProductSpecification = {
+  garmentCategory: "top",
+  sampleSize: "M",
+  intendedFit: "regular",
+  fabricBehavior: "structured",
+};
+
+export type GenerationProgressStage =
+  | "idle"
+  | "uploading"
+  | "validating"
+  | "generating"
+  | "completed"
+  | "failed";
+
+export type GenerationApiSuccess = {
+  ok: true;
+  result: {
+    provider: "mock" | "gemini";
+    model: string;
+    imageDataUrl: string;
+    metadata: {
+      requestId: string;
+      providerRequestId?: string;
+      promptVersion: string;
+      durationMs: number;
+      imageSize: "1K";
+      aspectRatio: string;
+      usage?: {
+        inputTokens?: number;
+        outputTokens?: number;
+        thoughtTokens?: number;
+        totalTokens?: number;
+      };
+    };
+  };
+};
+
+export type GenerationApiFailure = {
+  ok: false;
+  error: {
+    code: string;
+    message: string;
+    retryable: boolean;
+    requestId?: string;
+  };
+};
+
+export type GenerationApiResponse = GenerationApiSuccess | GenerationApiFailure;
