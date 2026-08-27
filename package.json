@@ -9,12 +9,15 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "check": "npm run typecheck && npm run lint && npm run build",
-    "security:audit": "npm audit --omit=dev"
+    "security:audit": "npm audit --omit=dev",
+    "test": "node --conditions=react-server --import tsx --test tests/*.test.ts"
   },
   "dependencies": {
+    "@google/genai": "^2.19.0",
     "next": "16.3.0",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@types/node": "^20",
@@ -22,6 +25,7 @@
     "@types/react-dom": "19.2.4",
     "eslint": "^9",
     "eslint-config-next": "16.3.0",
+    "tsx": "^4.23.12",
     "typescript": "^5"
   }
 }
