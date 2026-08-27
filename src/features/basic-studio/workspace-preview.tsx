@@ -25,6 +25,7 @@ import type { MockUser, ProductAsset } from "@/types/mock-platform";
 import {
   FABRIC_BEHAVIORS,
   GARMENT_CATEGORIES,
+  GARMENT_DIMENSION_FIELDS,
   GARMENT_FITS,
   GARMENT_SAMPLE_SIZES,
   type GarmentDimensions,
@@ -456,9 +457,9 @@ export function WorkspacePreview({
             <details className={styles.dimensionDetails}>
               <summary>Optional sample dimensions</summary>
               <div>
-                {(["chestCm", "waistCm", "hipCm", "lengthCm"] as const).map((key) => (
+                {GARMENT_DIMENSION_FIELDS.map(({ key, label }) => (
                   <label key={key}>
-                    <span>{key.replace("Cm", "")} (cm)</span>
+                    <span>{label} (cm)</span>
                     <input type="number" min="10" max="300" step="0.5" value={workflow.productSpecification.dimensions?.[key] ?? ""} onChange={(event) => updateProductDimension(key, event.target.value)} />
                   </label>
                 ))}

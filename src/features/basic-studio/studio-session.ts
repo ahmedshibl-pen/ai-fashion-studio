@@ -26,6 +26,7 @@ import {
   DEFAULT_PRODUCT_SPECIFICATION,
   FABRIC_BEHAVIORS,
   GARMENT_CATEGORIES,
+  GARMENT_DIMENSION_FIELDS,
   GARMENT_FITS,
   GARMENT_SAMPLE_SIZES,
   type ProductSpecification,
@@ -150,8 +151,8 @@ function validateStoredProductSpecification(value: unknown): ProductSpecificatio
     : DEFAULT_PRODUCT_SPECIFICATION.fabricBehavior;
   const dimensions = isRecord(value.dimensions)
     ? Object.fromEntries(
-        ["chestCm", "waistCm", "hipCm", "lengthCm"]
-          .map((key) => [key, value.dimensions && (value.dimensions as Record<string, unknown>)[key]])
+        GARMENT_DIMENSION_FIELDS
+          .map(({ key }) => [key, value.dimensions && (value.dimensions as Record<string, unknown>)[key]])
           .filter((entry): entry is [string, number] => typeof entry[1] === "number" && entry[1] >= 10 && entry[1] <= 300),
       )
     : undefined;

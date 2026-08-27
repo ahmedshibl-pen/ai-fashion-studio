@@ -4,7 +4,7 @@ import type { ProductAsset } from "@/types/mock-platform";
 
 import { GenerationProviderError } from "./errors";
 import { MAX_PRODUCT_IMAGE_BYTES } from "./image-validation";
-import { resolveGenerationSelection } from "./presets";
+import { resolveGenerationSelection } from "./presets/selection-resolver";
 import { validateProductSpecification } from "./product-specification";
 
 const MAX_METADATA_LENGTH = 20_000;
@@ -41,6 +41,13 @@ export async function parseGenerationFormData(formData: FormData) {
   }
   if (image.type !== "image/png" && image.type !== "image/jpeg" && image.type !== "image/webp") {
     throw new GenerationProviderError("invalid-request", { safeMessage: "Upload a PNG, JPG, or WEBP product image." });
+  }
+  const allowedExtensions = image.type === "image/jpeg" ? ["jpg", "jpeg"] : [image.type.slice("image/".length)];
+  const extension = image.name.toLowerCase().match(/\.([a-z0-9]+)$/)?.[1];
+  if (!extension || !allowedExtensions.includes(extension)) {
+    throw new GenerationProviderError("invalid-request", {
+      safeMessage: "The product image filename does not match its image type.",
+    });
   }
 
   const requestId = typeof metadata.requestId === "string" && ID_PATTERN.test(metadata.requestId) ? metadata.requestId : null;

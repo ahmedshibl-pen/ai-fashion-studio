@@ -7,10 +7,8 @@ import type { ProductAsset } from "@/types/mock-platform";
 
 import { GenerationProviderError } from "./errors";
 import { validateImageBuffer, validateReferenceSet } from "./image-validation";
-import type { resolveGenerationSelection } from "./presets";
+import type { ResolvedGenerationSelection } from "./presets/selection-resolver";
 import type { GenerationImageReference } from "./types";
-
-type ResolvedSelection = ReturnType<typeof resolveGenerationSelection>;
 
 function parseProductDataUrl(product: ProductAsset) {
   const match = product.previewDataUrl.match(/^data:(image\/(?:png|jpeg|webp));base64,([A-Za-z0-9+/=]+)$/);
@@ -31,14 +29,22 @@ async function readTrustedPublicImage(publicPath: string) {
   if (!filePath.startsWith(`${publicRoot}${path.sep}`)) {
     throw new GenerationProviderError("configuration");
   }
-  const data = await readFile(filePath);
+  let data: Buffer;
+  try {
+    data = await readFile(filePath);
+  } catch (error) {
+    throw new GenerationProviderError("configuration", {
+      cause: error,
+      safeMessage: "A selected studio reference asset is unavailable.",
+    });
+  }
   const metadata = validateImageBuffer(data, "image/webp", { maxBytes: 8 * 1024 * 1024 });
   return { data, mimeType: metadata.mimeType };
 }
 
 export async function resolveGenerationReferences(
   product: ProductAsset,
-  selection: ResolvedSelection,
+  selection: ResolvedGenerationSelection,
 ): Promise<readonly GenerationImageReference[]> {
   const productImage = parseProductDataUrl(product);
   const [model, pose, lighting] = await Promise.all([

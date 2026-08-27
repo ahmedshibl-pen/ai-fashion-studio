@@ -25,11 +25,25 @@ export type GarmentFit = (typeof GARMENT_FITS)[number];
 export type FabricBehavior = (typeof FABRIC_BEHAVIORS)[number];
 
 export type GarmentDimensions = {
-  chestCm?: number;
-  waistCm?: number;
-  hipCm?: number;
-  lengthCm?: number;
+  chestOrBustWidthCm?: number;
+  garmentLengthCm?: number;
+  shoulderWidthCm?: number;
+  sleeveLengthCm?: number;
+  waistWidthCm?: number;
+  hipWidthCm?: number;
 };
+
+export const GARMENT_DIMENSION_FIELDS = [
+  { key: "chestOrBustWidthCm", label: "Chest or bust width" },
+  { key: "garmentLengthCm", label: "Garment length" },
+  { key: "shoulderWidthCm", label: "Shoulder width" },
+  { key: "sleeveLengthCm", label: "Sleeve length" },
+  { key: "waistWidthCm", label: "Waist width" },
+  { key: "hipWidthCm", label: "Hip width" },
+] as const satisfies readonly {
+  key: keyof GarmentDimensions;
+  label: string;
+}[];
 
 export type ProductSpecification = {
   garmentCategory: GarmentCategory;

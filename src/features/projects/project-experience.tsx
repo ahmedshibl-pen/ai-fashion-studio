@@ -25,15 +25,9 @@ import {
 import type { GenerationRuntimeStatus, MockProject } from "@/types/mock-platform";
 import type { GenerationApiResponse, PublicGenerationStatus } from "@/types/generation";
 
-import styles from "./project-experience.module.css";
+import { GENERATION_PROGRESS_STEPS, getGenerationClientState } from "./generation-client-state";
 
-const GENERATION_STAGES = [
-  "Preparing product",
-  "Applying creative direction",
-  "Generating campaign",
-  "Refining result",
-  "Preparing preview",
-] as const;
+import styles from "./project-experience.module.css";
 
 const STATUS_LABELS = {
   draft: "Draft",
@@ -57,7 +51,14 @@ function statusTone(status: MockProject["status"]): "neutral" | "success" | "war
 async function productDataUrlToFile(project: MockProject) {
   const response = await fetch(project.product.previewDataUrl);
   const blob = await response.blob();
-  return new File([blob], project.product.fileName, { type: blob.type });
+  const extensionByMimeType: Record<string, string> = {
+    "image/jpeg": "jpg",
+    "image/png": "png",
+    "image/webp": "webp",
+  };
+  const extension = extensionByMimeType[blob.type] ?? "img";
+  const baseName = project.product.fileName.replace(/\.[^.]+$/, "") || "product-image";
+  return new File([blob], `${baseName}.${extension}`, { type: blob.type });
 }
 
 export function ProjectExperience({
@@ -178,7 +179,7 @@ export function ProjectExperience({
     const timer = window.setTimeout(() => {
       const nextStatus: GenerationRuntimeStatus = project.status === "queued"
         ? "processing"
-        : project.generationStage >= GENERATION_STAGES.length - 1
+        : project.generationStage >= GENERATION_PROGRESS_STEPS.length - 1
           ? "completed"
           : "processing";
       const nextStage = project.status === "queued" ? 0 : project.generationStage + 1;
@@ -266,7 +267,7 @@ export function ProjectExperience({
   }
 
   const isGenerating = project.status === "queued" || project.status === "processing";
-  const generationPercent = project.status === "queued" ? 6 : Math.min(96, 18 + project.generationStage * 19);
+  const generationState = getGenerationClientState(project.status, project.generationStage);
   const model = STUDIO_MODEL_BY_ID[project.setup.modelId];
   const lighting = LIGHTING_PRESET_BY_ID[project.setup.lightingPresetId];
   const pose = POSE_PRESET_BY_ID[project.setup.posePresetId];
@@ -292,15 +293,15 @@ export function ProjectExperience({
           <div className={styles.generationLayout}>
             <section className={styles.generationPreview} aria-label="Generation preview">
               <Image src={project.resultImagePath} fill unoptimized={project.resultImagePath.startsWith("data:")} sizes="(max-width: 900px) 100vw, 62vw" alt="Campaign preview being generated" loading="eager" />
-              <div className={styles.processingVeil}><span className={styles.processingMark} aria-hidden="true">A</span><p>{project.status === "queued" ? "Campaign queued" : GENERATION_STAGES[project.generationStage]}</p></div>
+              <div className={styles.processingVeil} data-phase={generationState.phase}><span className={styles.processingMark} aria-hidden="true">A</span><p>{generationState.label}</p></div>
             </section>
             <section className={styles.progressPanel} aria-live="polite">
               <p className={styles.eyebrow}>Generation in progress</p>
               <h2>Directing the campaign.</h2>
               <p>{generationStatus.mode === "gemini" ? "One server-only Gemini request is running with automatic retries disabled." : "The complete validated server flow is running against the mock provider with no external charge."}</p>
-              <Progress value={generationPercent} label={project.status === "queued" ? "Waiting for studio" : GENERATION_STAGES[project.generationStage]} />
+              <Progress value={generationState.percent} label={generationState.label} />
               <ol className={styles.stageList}>
-                {GENERATION_STAGES.map((stage, index) => <li data-active={project.status === "processing" && index === project.generationStage} data-complete={project.status === "processing" && index < project.generationStage} key={stage}><span>{index < project.generationStage ? "✓" : String(index + 1).padStart(2, "0")}</span>{stage}</li>)}
+                {GENERATION_PROGRESS_STEPS.map((step, index) => <li data-active={index === generationState.stepIndex} data-complete={index < generationState.stepIndex} key={step.label}><span>{index < generationState.stepIndex ? "✓" : String(index + 1).padStart(2, "0")}</span>{step.label}</li>)}
               </ol>
             </section>
           </div>

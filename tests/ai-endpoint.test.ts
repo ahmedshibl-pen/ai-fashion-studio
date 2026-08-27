@@ -35,6 +35,14 @@ async function createRequest(metadata = validMetadata()) {
   return new Request("http://localhost/api/generation", { method: "POST", body });
 }
 
+async function createRequestWithProductName(fileName: string) {
+  const product = await readFile(path.join(process.cwd(), "public/images/models/model-man.webp"));
+  const body = new FormData();
+  body.set("metadata", JSON.stringify(validMetadata()));
+  body.set("productImage", new File([product], fileName, { type: "image/webp" }));
+  return new Request("http://localhost/api/generation", { method: "POST", body });
+}
+
 test("generation status exposes readiness but never the API key", async () => {
   const response = GET();
   const text = await response.text();
@@ -48,6 +56,14 @@ test("generation endpoint rejects non-multipart and non-explicit requests", asyn
   assert.equal(wrongType.status, 400);
   const notExplicit = await POST(await createRequest(validMetadata({ explicitUserAction: false })));
   assert.equal(notExplicit.status, 400);
+});
+
+test("generation endpoint rejects a misleading product filename extension", async () => {
+  const response = await POST(await createRequestWithProductName("product.txt"));
+  const body = await response.json() as { ok: boolean; error?: { message: string } };
+  assert.equal(response.status, 400);
+  assert.equal(body.ok, false);
+  assert.match(body.error?.message ?? "", /filename does not match/i);
 });
 
 test("generation endpoint completes the full validated mock provider path", async () => {

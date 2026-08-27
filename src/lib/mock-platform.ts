@@ -23,6 +23,7 @@ import {
   DEFAULT_PRODUCT_SPECIFICATION,
   FABRIC_BEHAVIORS,
   GARMENT_CATEGORIES,
+  GARMENT_DIMENSION_FIELDS,
   GARMENT_FITS,
   GARMENT_SAMPLE_SIZES,
   type ProductSpecification,
@@ -162,6 +163,13 @@ function validateProduct(value: unknown): ProductAsset | null {
 
 function validateProductSpecification(value: unknown): ProductSpecification {
   if (!isRecord(value)) return DEFAULT_PRODUCT_SPECIFICATION;
+  const dimensions = isRecord(value.dimensions)
+    ? Object.fromEntries(
+        GARMENT_DIMENSION_FIELDS
+          .map(({ key }) => [key, value.dimensions && (value.dimensions as Record<string, unknown>)[key]])
+          .filter((entry): entry is [string, number] => typeof entry[1] === "number" && entry[1] >= 10 && entry[1] <= 300),
+      )
+    : undefined;
   return {
     garmentCategory: GARMENT_CATEGORIES.includes(value.garmentCategory as ProductSpecification["garmentCategory"])
       ? value.garmentCategory as ProductSpecification["garmentCategory"]
@@ -175,6 +183,7 @@ function validateProductSpecification(value: unknown): ProductSpecification {
     fabricBehavior: FABRIC_BEHAVIORS.includes(value.fabricBehavior as ProductSpecification["fabricBehavior"])
       ? value.fabricBehavior as ProductSpecification["fabricBehavior"]
       : DEFAULT_PRODUCT_SPECIFICATION.fabricBehavior,
+    dimensions: dimensions && Object.keys(dimensions).length > 0 ? dimensions : undefined,
   };
 }
 

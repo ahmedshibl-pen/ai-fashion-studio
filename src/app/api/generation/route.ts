@@ -4,7 +4,8 @@ import { reserveLiveGenerationAttempt } from "@/server/ai/attempt-guard";
 import { getPublicGenerationStatus, readGenerationEnvironment } from "@/server/ai/env";
 import { GenerationProviderError, normalizeGenerationError } from "@/server/ai/errors";
 import { createGenerationProvider } from "@/server/ai/provider-factory";
-import { buildFashionGenerationPrompt, FASHION_PROMPT_VERSION } from "@/server/ai/prompt";
+import { buildFashionGenerationPrompt } from "@/server/ai/prompts/build-generation-prompt";
+import { FASHION_PROMPT_VERSION } from "@/server/ai/prompts/prompt-version";
 import { resolveGenerationReferences } from "@/server/ai/references";
 import { parseGenerationFormData } from "@/server/ai/request";
 
@@ -58,7 +59,7 @@ export async function POST(request: Request) {
     }
 
     const references = await resolveGenerationReferences(parsed.product, parsed.selection);
-    const prompt = buildFashionGenerationPrompt(parsed.selection, parsed.productSpecification);
+    const prompt = buildFashionGenerationPrompt({ selection: parsed.selection, product: parsed.productSpecification });
     const provider = createGenerationProvider();
     const result = await provider.generate({
       requestId: parsed.requestId,
