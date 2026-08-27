@@ -19,6 +19,14 @@ import type {
   ProductAssetService,
   ProjectService,
 } from "@/types/mock-platform";
+import {
+  DEFAULT_PRODUCT_SPECIFICATION,
+  FABRIC_BEHAVIORS,
+  GARMENT_CATEGORIES,
+  GARMENT_FITS,
+  GARMENT_SAMPLE_SIZES,
+  type ProductSpecification,
+} from "@/types/generation";
 
 const STORE_KEY = "ai-fashion-studio:mock-platform:v1";
 export const MOCK_PLATFORM_UPDATED_EVENT = "ai-fashion-studio:mock-platform-updated";
@@ -110,6 +118,7 @@ function createDemoProjects(): MockProject[] {
     name: item.name,
     studioId: "basic-studio",
     product: DEMO_PRODUCT,
+    productSpecification: DEFAULT_PRODUCT_SPECIFICATION,
     setup: item.setup,
     status: item.status,
     generationStage: item.generationStage ?? 0,
@@ -151,6 +160,24 @@ function validateProduct(value: unknown): ProductAsset | null {
   return { id: value.id, fileName: value.fileName, mimeType, size: value.size, previewDataUrl: value.previewDataUrl };
 }
 
+function validateProductSpecification(value: unknown): ProductSpecification {
+  if (!isRecord(value)) return DEFAULT_PRODUCT_SPECIFICATION;
+  return {
+    garmentCategory: GARMENT_CATEGORIES.includes(value.garmentCategory as ProductSpecification["garmentCategory"])
+      ? value.garmentCategory as ProductSpecification["garmentCategory"]
+      : DEFAULT_PRODUCT_SPECIFICATION.garmentCategory,
+    sampleSize: GARMENT_SAMPLE_SIZES.includes(value.sampleSize as ProductSpecification["sampleSize"])
+      ? value.sampleSize as ProductSpecification["sampleSize"]
+      : DEFAULT_PRODUCT_SPECIFICATION.sampleSize,
+    intendedFit: GARMENT_FITS.includes(value.intendedFit as ProductSpecification["intendedFit"])
+      ? value.intendedFit as ProductSpecification["intendedFit"]
+      : DEFAULT_PRODUCT_SPECIFICATION.intendedFit,
+    fabricBehavior: FABRIC_BEHAVIORS.includes(value.fabricBehavior as ProductSpecification["fabricBehavior"])
+      ? value.fabricBehavior as ProductSpecification["fabricBehavior"]
+      : DEFAULT_PRODUCT_SPECIFICATION.fabricBehavior,
+  };
+}
+
 function validateProject(value: unknown): MockProject | null {
   if (!isRecord(value) || !isRecord(value.setup)) return null;
   const setup = value.setup;
@@ -174,11 +201,19 @@ function validateProject(value: unknown): MockProject | null {
     name: value.name,
     studioId: "basic-studio",
     product,
+    productSpecification: validateProductSpecification(value.productSpecification),
     setup: { modelId, lightingPresetId, posePresetId, cameraPresetId },
     status: value.status,
     generationStage: typeof value.generationStage === "number" ? Math.max(0, Math.min(4, value.generationStage)) : 0,
     version: typeof value.version === "number" ? Math.max(1, value.version) : 1,
     resultImagePath: value.resultImagePath,
+    generationAttempted: value.generationAttempted === true,
+    generationResult: isRecord(value.generationResult) && (value.generationResult.provider === "mock" || value.generationResult.provider === "gemini")
+      ? value.generationResult as MockProject["generationResult"]
+      : undefined,
+    generationError: isRecord(value.generationError) && typeof value.generationError.code === "string" && typeof value.generationError.message === "string"
+      ? { code: value.generationError.code, message: value.generationError.message, retryable: value.generationError.retryable === true }
+      : undefined,
     creditsCost: typeof value.creditsCost === "number" ? value.creditsCost : 40,
     adjustmentNote: typeof value.adjustmentNote === "string" ? value.adjustmentNote : "",
     createdAt: value.createdAt,
@@ -315,7 +350,7 @@ export const mockProjectService: ProjectService = {
     const existing = store.projects.find((project) => project.status === "draft" && project.product.id === input.product.id);
     const resultImagePath = CAMERA_PRESET_BY_ID[input.setup.cameraPresetId].imagePath;
     if (existing) {
-      const updated = { ...existing, setup: input.setup, product: input.product, resultImagePath, updatedAt: now };
+      const updated = { ...existing, setup: input.setup, product: input.product, productSpecification: input.productSpecification, resultImagePath, generationAttempted: false, generationResult: undefined, generationError: undefined, updatedAt: now };
       store.projects[store.projects.indexOf(existing)] = updated;
       writeStore(store);
       return updated;
@@ -326,11 +361,13 @@ export const mockProjectService: ProjectService = {
       name: `${input.product.fileName.replace(/\.[^.]+$/, "")} Campaign`,
       studioId: "basic-studio",
       product: input.product,
+      productSpecification: input.productSpecification,
       setup: input.setup,
       status: "draft",
       generationStage: 0,
       version: 1,
       resultImagePath,
+      generationAttempted: false,
       creditsCost: 40,
       adjustmentNote: "",
       createdAt: now,

@@ -22,6 +22,14 @@ import {
   mockProjectService,
 } from "@/lib/mock-platform";
 import type { MockUser, ProductAsset } from "@/types/mock-platform";
+import {
+  FABRIC_BEHAVIORS,
+  GARMENT_CATEGORIES,
+  GARMENT_FITS,
+  GARMENT_SAMPLE_SIZES,
+  type GarmentDimensions,
+  type ProductSpecification,
+} from "@/types/generation";
 
 import {
   CAMERA_PRESET_BY_ID,
@@ -65,7 +73,7 @@ const STEP_COPY: Record<StudioStep, { eyebrow: string; title: string; descriptio
   product: {
     eyebrow: "01 / Product",
     title: "Bring in the product",
-    description: "Use a clean product image. Nothing leaves your browser in this prototype.",
+    description: "Use a clean product image and describe how the sample should fit and drape.",
   },
   lighting: {
     eyebrow: "02 / Lighting",
@@ -85,12 +93,12 @@ const STEP_COPY: Record<StudioStep, { eyebrow: string; title: string; descriptio
   review: {
     eyebrow: "05 / Review",
     title: "Review the creative setup",
-    description: "Confirm every direction before the mocked campaign generation begins.",
+    description: "Confirm every direction before the secure generation request begins.",
   },
 };
 
 const ACCEPTED_TYPES = new Set(["image/png", "image/jpeg", "image/webp"]);
-const MAX_PRODUCT_BYTES = 10 * 1024 * 1024;
+const MAX_PRODUCT_BYTES = 8 * 1024 * 1024;
 
 type ProductFile = ProductAsset & { sizeLabel: string; previewUrl: string };
 type Preset = { id: string; label: string; description: string; thumbnailPath: string };
@@ -238,6 +246,23 @@ export function WorkspacePreview({
     }));
   };
 
+  const updateProductSpecification = (patch: Partial<ProductSpecification>) => {
+    commitWorkflow((current) => ({
+      ...current,
+      productSpecification: { ...current.productSpecification, ...patch },
+    }));
+  };
+
+  const updateProductDimension = (key: keyof GarmentDimensions, value: string) => {
+    const nextValue = value === "" ? undefined : Number(value);
+    updateProductSpecification({
+      dimensions: {
+        ...workflow.productSpecification.dimensions,
+        [key]: Number.isFinite(nextValue) ? nextValue : undefined,
+      },
+    });
+  };
+
   const acceptProductFile = async (file: File | undefined) => {
     setDragging(false);
     setProductError(null);
@@ -247,7 +272,7 @@ export function WorkspacePreview({
       return;
     }
     if (file.size > MAX_PRODUCT_BYTES) {
-      setProductError("The product image must be 10 MB or smaller.");
+      setProductError("The product image must be 8 MB or smaller.");
       return;
     }
     if (productUrlRef.current) URL.revokeObjectURL(productUrlRef.current);
@@ -324,6 +349,7 @@ export function WorkspacePreview({
     try {
       const project = await mockProjectService.createDraft({
         product,
+        productSpecification: workflow.productSpecification,
         setup: {
           modelId,
           lightingPresetId: setup.lightingPresetId,
@@ -351,7 +377,7 @@ export function WorkspacePreview({
   };
 
   const setupItems = [
-    { label: "Product", value: product?.fileName ?? "Not uploaded" },
+    { label: "Product", value: product ? `${product.fileName} · ${workflow.productSpecification.intendedFit} fit` : "Not uploaded" },
     { label: "Model", value: model.displayName },
     { label: "Lighting", value: selectedLighting?.label ?? "Not selected" },
     { label: "Pose", value: selectedPose?.label ?? "Not selected" },
@@ -396,12 +422,50 @@ export function WorkspacePreview({
               <strong>Drop the product image here</strong>
               <span>or choose a local file</span>
               <Button type="button" variant="secondary" onClick={() => fileInputRef.current?.click()}>Browse files</Button>
-              <small>PNG, JPG or WEBP · maximum 10 MB</small>
+              <small>PNG, JPG or WEBP · maximum 8 MB</small>
             </div>
           )}
           <input className="sr-only" ref={fileInputRef} type="file" accept="image/png,image/jpeg,image/webp" onChange={handleFileChange} aria-label="Choose product image" />
           {productError ? <StatusMessage tone="error">{productError}</StatusMessage> : null}
-          <div className={styles.privacyNote}><span aria-hidden="true">◎</span><p><strong>Local preview only</strong>Your file is not uploaded to a server during this prototype.</p></div>
+          <fieldset className={styles.productSpecification}>
+            <legend>Garment details</legend>
+            <label>
+              <span>Category</span>
+              <select value={workflow.productSpecification.garmentCategory} onChange={(event) => updateProductSpecification({ garmentCategory: event.target.value as ProductSpecification["garmentCategory"] })}>
+                {GARMENT_CATEGORIES.map((value) => <option value={value} key={value}>{value.replace("-", " ")}</option>)}
+              </select>
+            </label>
+            <label>
+              <span>Sample size</span>
+              <select value={workflow.productSpecification.sampleSize} onChange={(event) => updateProductSpecification({ sampleSize: event.target.value as ProductSpecification["sampleSize"] })}>
+                {GARMENT_SAMPLE_SIZES.map((value) => <option value={value} key={value}>{value}</option>)}
+              </select>
+            </label>
+            <label>
+              <span>Intended fit</span>
+              <select value={workflow.productSpecification.intendedFit} onChange={(event) => updateProductSpecification({ intendedFit: event.target.value as ProductSpecification["intendedFit"] })}>
+                {GARMENT_FITS.map((value) => <option value={value} key={value}>{value}</option>)}
+              </select>
+            </label>
+            <label>
+              <span>Fabric behavior</span>
+              <select value={workflow.productSpecification.fabricBehavior} onChange={(event) => updateProductSpecification({ fabricBehavior: event.target.value as ProductSpecification["fabricBehavior"] })}>
+                {FABRIC_BEHAVIORS.map((value) => <option value={value} key={value}>{value}</option>)}
+              </select>
+            </label>
+            <details className={styles.dimensionDetails}>
+              <summary>Optional sample dimensions</summary>
+              <div>
+                {(["chestCm", "waistCm", "hipCm", "lengthCm"] as const).map((key) => (
+                  <label key={key}>
+                    <span>{key.replace("Cm", "")} (cm)</span>
+                    <input type="number" min="10" max="300" step="0.5" value={workflow.productSpecification.dimensions?.[key] ?? ""} onChange={(event) => updateProductDimension(key, event.target.value)} />
+                  </label>
+                ))}
+              </div>
+            </details>
+          </fieldset>
+          <div className={styles.privacyNote}><span aria-hidden="true">◎</span><p><strong>Server-only generation</strong>The image stays local until you explicitly generate, then it is validated and held in memory only for that request.</p></div>
         </div>
       );
     }

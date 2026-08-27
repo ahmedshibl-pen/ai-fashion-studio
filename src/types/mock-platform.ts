@@ -2,6 +2,7 @@ import type { CameraPresetId } from "@/features/basic-studio/camera-presets";
 import type { LightingPresetId } from "@/features/basic-studio/lighting-presets";
 import type { StudioModelId } from "@/features/basic-studio/model-catalog";
 import type { PosePresetId } from "@/features/basic-studio/pose-presets";
+import type { ProductSpecification } from "@/types/generation";
 
 export type MockUser = {
   id: string;
@@ -43,11 +44,34 @@ export type MockProject = {
   name: string;
   studioId: "basic-studio";
   product: ProductAsset;
+  productSpecification: ProductSpecification;
   setup: ProjectSetup;
   status: MockProjectStatus;
   generationStage: number;
   version: number;
   resultImagePath: string;
+  generationAttempted?: boolean;
+  generationResult?: {
+    provider: "mock" | "gemini";
+    model: string;
+    requestId: string;
+    providerRequestId?: string;
+    promptVersion: string;
+    durationMs: number;
+    imageSize: "1K";
+    aspectRatio: string;
+    usage?: {
+      inputTokens?: number;
+      outputTokens?: number;
+      thoughtTokens?: number;
+      totalTokens?: number;
+    };
+  };
+  generationError?: {
+    code: string;
+    message: string;
+    retryable: boolean;
+  };
   creditsCost: number;
   adjustmentNote: string;
   createdAt: string;
@@ -77,6 +101,7 @@ export type MockPaymentRecord = {
 
 export type CreateProjectInput = {
   product: ProductAsset;
+  productSpecification: ProductSpecification;
   setup: ProjectSetup;
 };
 

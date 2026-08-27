@@ -22,6 +22,14 @@ import {
   type PosePresetId,
 } from "./pose-presets";
 import type { ProductAsset } from "@/types/mock-platform";
+import {
+  DEFAULT_PRODUCT_SPECIFICATION,
+  FABRIC_BEHAVIORS,
+  GARMENT_CATEGORIES,
+  GARMENT_FITS,
+  GARMENT_SAMPLE_SIZES,
+  type ProductSpecification,
+} from "@/types/generation";
 
 export type ModelSetupSelection = {
   lightingPresetId: LightingPresetId | null;
@@ -53,6 +61,7 @@ export type StudioWorkflowSession = {
   activeStep: StudioStep;
   setups: ModelSetupSelections;
   product: ProductAsset | null;
+  productSpecification: ProductSpecification;
 };
 
 export function readSessionStorage(key: string): string | null {
@@ -125,6 +134,36 @@ function validateStoredProduct(value: unknown): ProductAsset | null {
   return { id: value.id, fileName: value.fileName, mimeType, size: value.size, previewDataUrl: value.previewDataUrl };
 }
 
+function validateStoredProductSpecification(value: unknown): ProductSpecification {
+  if (!isRecord(value)) return DEFAULT_PRODUCT_SPECIFICATION;
+  const garmentCategory = GARMENT_CATEGORIES.includes(value.garmentCategory as ProductSpecification["garmentCategory"])
+    ? value.garmentCategory as ProductSpecification["garmentCategory"]
+    : DEFAULT_PRODUCT_SPECIFICATION.garmentCategory;
+  const sampleSize = GARMENT_SAMPLE_SIZES.includes(value.sampleSize as ProductSpecification["sampleSize"])
+    ? value.sampleSize as ProductSpecification["sampleSize"]
+    : DEFAULT_PRODUCT_SPECIFICATION.sampleSize;
+  const intendedFit = GARMENT_FITS.includes(value.intendedFit as ProductSpecification["intendedFit"])
+    ? value.intendedFit as ProductSpecification["intendedFit"]
+    : DEFAULT_PRODUCT_SPECIFICATION.intendedFit;
+  const fabricBehavior = FABRIC_BEHAVIORS.includes(value.fabricBehavior as ProductSpecification["fabricBehavior"])
+    ? value.fabricBehavior as ProductSpecification["fabricBehavior"]
+    : DEFAULT_PRODUCT_SPECIFICATION.fabricBehavior;
+  const dimensions = isRecord(value.dimensions)
+    ? Object.fromEntries(
+        ["chestCm", "waistCm", "hipCm", "lengthCm"]
+          .map((key) => [key, value.dimensions && (value.dimensions as Record<string, unknown>)[key]])
+          .filter((entry): entry is [string, number] => typeof entry[1] === "number" && entry[1] >= 10 && entry[1] <= 300),
+      )
+    : undefined;
+  return {
+    garmentCategory,
+    sampleSize,
+    intendedFit,
+    fabricBehavior,
+    dimensions: dimensions && Object.keys(dimensions).length > 0 ? dimensions : undefined,
+  };
+}
+
 export function validateStoredModelSetup(
   modelId: StudioModelId,
   value: unknown,
@@ -195,6 +234,7 @@ export function createDefaultWorkflowSession(
     activeStep: "product",
     setups: createDefaultModelSetups(),
     product: null,
+    productSpecification: DEFAULT_PRODUCT_SPECIFICATION,
   };
 }
 
@@ -224,6 +264,7 @@ export function parseStoredWorkflowSession(
     typeof parsed.setups === "object" ? JSON.stringify(parsed.setups) : null,
   );
   const product = validateStoredProduct(parsed.product);
+  const productSpecification = validateStoredProductSpecification(parsed.productSpecification);
 
-  return { modelId, activeStep, setups, product };
+  return { modelId, activeStep, setups, product, productSpecification };
 }

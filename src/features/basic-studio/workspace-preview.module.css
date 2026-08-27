@@ -525,6 +525,70 @@
   background: var(--surface-light);
 }
 
+.productSpecification {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-light);
+}
+
+.productSpecification legend {
+  padding-inline: 0.35rem;
+  color: var(--accent-bronze);
+  font-family: var(--font-mono);
+  font-size: 0.57rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.productSpecification label {
+  min-width: 0;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.productSpecification label > span {
+  color: var(--text-secondary);
+  font-size: 0.58rem;
+  text-transform: capitalize;
+}
+
+.productSpecification select,
+.productSpecification input {
+  width: 100%;
+  min-height: 42px;
+  padding-inline: 0.65rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0;
+  color: var(--text-primary);
+  background: var(--surface-elevated);
+  font: inherit;
+  font-size: 0.66rem;
+}
+
+.dimensionDetails {
+  grid-column: 1 / -1;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 0.7rem;
+}
+
+.dimensionDetails summary {
+  color: var(--brand-primary);
+  cursor: pointer;
+  font-size: 0.63rem;
+  font-weight: 650;
+}
+
+.dimensionDetails > div {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin-top: 0.7rem;
+}
+
 .privacyNote > span {
   color: var(--accent-bronze);
 }
@@ -749,6 +813,14 @@
   .dropZone {
     height: 18rem;
     min-height: 18rem;
+  }
+
+  .productSpecification {
+    grid-template-columns: 1fr;
+  }
+
+  .dimensionDetails > div {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .reviewTotals {

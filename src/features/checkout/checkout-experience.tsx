@@ -12,10 +12,11 @@ import {
   mockProjectService,
 } from "@/lib/mock-platform";
 import type { CreditPackage, MockOutcome, MockProject } from "@/types/mock-platform";
+import type { PublicGenerationStatus } from "@/types/generation";
 
 import styles from "./checkout-experience.module.css";
 
-export function CheckoutExperience({ projectId }: { projectId: string }) {
+export function CheckoutExperience({ projectId, generationStatus }: { projectId: string; generationStatus: PublicGenerationStatus }) {
   const router = useRouter();
   const [project, setProject] = useState<MockProject | null>(null);
   const [balance, setBalance] = useState(0);
@@ -49,7 +50,7 @@ export function CheckoutExperience({ projectId }: { projectId: string }) {
     try {
       const result = await mockBillingService.checkout(project.id, selectedPackage, outcome);
       setBalance(result.balance);
-      router.push(`/projects/${encodeURIComponent(result.project.id)}`);
+      router.push(`/projects/${encodeURIComponent(result.project.id)}?generate=1`);
     } catch (caught) {
       setError(caught instanceof MockServiceError ? caught.message : "The mocked checkout could not be completed.");
     } finally {
@@ -73,7 +74,7 @@ export function CheckoutExperience({ projectId }: { projectId: string }) {
       <AppHeader />
       <main className={styles.main}>
         <header className={styles.pageHeader}>
-          <div><p className={styles.eyebrow}>Credit confirmation / Mock checkout</p><h1>Ready the campaign for production.</h1><p>Confirm how the prototype should allocate credits. No real payment is collected.</p></div>
+          <div><p className={styles.eyebrow}>Credit confirmation / {generationStatus.mode === "gemini" ? "Live generation" : "Mock generation"}</p><h1>Ready the campaign for production.</h1><p>Confirm how the prototype should allocate credits. No real payment is collected.</p></div>
           <Link href={`/studio/basic?stage=workspace&model=${project?.setup.modelId ?? "male-model-01"}`}>← Return to Studio</Link>
         </header>
 
@@ -95,7 +96,7 @@ export function CheckoutExperience({ projectId }: { projectId: string }) {
                   <div><dt>Studio</dt><dd>Basic Studio</dd></div>
                   <div><dt>Model</dt><dd>{project.setup.modelId === "female-model-01" ? "Female Model 01" : "Male Model 01"}</dd></div>
                   <div><dt>Version</dt><dd>01</dd></div>
-                  <div><dt>Generation</dt><dd>Approx. 45 sec</dd></div>
+                  <div><dt>Generation</dt><dd>{generationStatus.mode === "gemini" ? "Live Gemini · 1K" : "Validated mock · 1K"}</dd></div>
                 </dl>
                 <div className={styles.costLine}><span>Campaign generation</span><strong>{project.creditsCost} credits</strong></div>
               </div>
@@ -125,10 +126,11 @@ export function CheckoutExperience({ projectId }: { projectId: string }) {
                 </fieldset>
               ) : null}
 
-              <div className={styles.secureArea}><span aria-hidden="true">◇</span><div><strong>Mock secure confirmation</strong><p>No card details, gateway or real transaction are used.</p></div></div>
+              <div className={styles.secureArea}><span aria-hidden="true">◇</span><div><strong>{generationStatus.mode === "gemini" ? "Live provider confirmation" : "Secure mock generation"}</strong><p>{generationStatus.mode === "gemini" ? "One explicit 1K Gemini request will be sent. Provider charges may apply; no automatic retry is used." : "The complete server validation and provider flow runs with no external image request or provider charge."}</p></div></div>
+              {!generationStatus.ready ? <StatusMessage tone="warning">Live image generation is not configured on the server yet. Add the API key to .env.local before continuing.</StatusMessage> : null}
               {error ? <StatusMessage tone="error">{error}</StatusMessage> : null}
-              <Button className={styles.payButton} type="button" onClick={() => void payAndGenerate()} disabled={paying || (selectedPackage === "balance" && balance < project.creditsCost)}>{paying ? "Confirming…" : selectedPackage === "balance" ? "Use Credits & Generate" : "Pay & Generate"} <span aria-hidden="true">→</span></Button>
-              <p className={styles.terms}>Prototype action only. Your setup remains available if the mock payment fails.</p>
+              <Button className={styles.payButton} type="button" onClick={() => void payAndGenerate()} disabled={!generationStatus.ready || paying || (selectedPackage === "balance" && balance < project.creditsCost)}>{paying ? "Confirming…" : selectedPackage === "balance" ? "Use Credits & Generate" : "Pay & Generate"} <span aria-hidden="true">→</span></Button>
+              <p className={styles.terms}>Your setup remains available if checkout or generation fails.</p>
             </section>
           </div>
         ) : null}

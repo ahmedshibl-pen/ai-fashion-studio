@@ -54,6 +54,13 @@ export type GenerationProgressStage =
   | "completed"
   | "failed";
 
+export type PublicGenerationStatus = {
+  mode: "mock" | "gemini";
+  model: "gemini-3.1-flash-image";
+  ready: boolean;
+  apiKeyConfigured: boolean;
+};
+
 export type GenerationApiSuccess = {
   ok: true;
   result: {

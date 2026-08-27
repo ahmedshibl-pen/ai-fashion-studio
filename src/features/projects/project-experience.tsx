@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { AppHeader } from "@/components/shell/app-header";
 import { Button, Dialog, EmptyState, Progress, StatusBadge, StatusMessage } from "@/components/ui";
@@ -23,6 +23,7 @@ import {
   mockProjectService,
 } from "@/lib/mock-platform";
 import type { GenerationRuntimeStatus, MockProject } from "@/types/mock-platform";
+import type { GenerationApiResponse, PublicGenerationStatus } from "@/types/generation";
 
 import styles from "./project-experience.module.css";
 
@@ -53,7 +54,21 @@ function statusTone(status: MockProject["status"]): "neutral" | "success" | "war
   return "neutral";
 }
 
-export function ProjectExperience({ projectId }: { projectId: string }) {
+async function productDataUrlToFile(project: MockProject) {
+  const response = await fetch(project.product.previewDataUrl);
+  const blob = await response.blob();
+  return new File([blob], project.product.fileName, { type: blob.type });
+}
+
+export function ProjectExperience({
+  projectId,
+  autoGenerate,
+  generationStatus,
+}: {
+  projectId: string;
+  autoGenerate: boolean;
+  generationStatus: PublicGenerationStatus;
+}) {
   const router = useRouter();
   const [project, setProject] = useState<MockProject | null>(null);
   const [loading, setLoading] = useState(true);
@@ -62,6 +77,85 @@ export function ProjectExperience({ projectId }: { projectId: string }) {
   const [approving, setApproving] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [downloads, setDownloads] = useState<readonly { label: string; fileName: string; href: string }[]>([]);
+  const generationInFlight = useRef(false);
+  const autoGenerationStarted = useRef(false);
+
+  const executeGeneration = useCallback(async (sourceProject: MockProject) => {
+    if (generationInFlight.current) return;
+    generationInFlight.current = true;
+    setError(null);
+    setNotice(null);
+    window.history.replaceState(null, "", window.location.pathname);
+
+    let stageTimer: number | undefined;
+    try {
+      const processing = await mockProjectService.updateProject(sourceProject.id, {
+        status: "processing",
+        generationStage: 0,
+        generationAttempted: true,
+        generationError: undefined,
+      });
+      setProject(processing);
+      stageTimer = window.setInterval(() => {
+        setProject((current) => current && current.id === sourceProject.id
+          ? { ...current, generationStage: Math.min(3, current.generationStage + 1) }
+          : current);
+      }, 1600);
+
+      const requestId = typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? `request-${crypto.randomUUID()}`
+        : `request-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+      const body = new FormData();
+      body.set("metadata", JSON.stringify({
+        requestId,
+        projectId: sourceProject.id,
+        explicitUserAction: true,
+        selection: sourceProject.setup,
+        productSpecification: sourceProject.productSpecification,
+      }));
+      body.set("productImage", await productDataUrlToFile(sourceProject));
+
+      const response = await fetch("/api/generation", { method: "POST", body });
+      const payload = await response.json() as GenerationApiResponse;
+      if (!payload.ok) {
+        const failure = Object.assign(new Error(payload.error.message), { generationError: payload.error });
+        throw failure;
+      }
+
+      const completed = await mockProjectService.updateProject(sourceProject.id, {
+        status: "completed",
+        generationStage: 4,
+        resultImagePath: payload.result.imageDataUrl,
+        generationResult: {
+          provider: payload.result.provider,
+          model: payload.result.model,
+          ...payload.result.metadata,
+        },
+        generationError: undefined,
+      });
+      setProject(completed);
+    } catch (caught) {
+      const failure = caught as Error & { generationError?: { code: string; message: string; retryable: boolean } };
+      const generationError = failure.generationError ?? {
+        code: "client-error",
+        message: "The generation request could not be completed.",
+        retryable: true,
+      };
+      setError(generationError.message);
+      try {
+        setProject(await mockProjectService.updateProject(sourceProject.id, {
+          status: "failed",
+          generationAttempted: true,
+          generationError,
+        }));
+      } catch {
+        setProject((current) => current ? { ...current, status: "failed", generationError } : current);
+      }
+    } finally {
+      if (stageTimer !== undefined) window.clearInterval(stageTimer);
+      generationInFlight.current = false;
+    }
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -74,7 +168,13 @@ export function ProjectExperience({ projectId }: { projectId: string }) {
   }, [projectId]);
 
   useEffect(() => {
-    if (!project || (project.status !== "queued" && project.status !== "processing")) return;
+    if (!autoGenerate || autoGenerationStarted.current || !project || project.status !== "queued") return;
+    autoGenerationStarted.current = true;
+    void executeGeneration(project);
+  }, [autoGenerate, executeGeneration, project]);
+
+  useEffect(() => {
+    if (!project || project.generationAttempted || autoGenerate || (project.status !== "queued" && project.status !== "processing")) return;
     const timer = window.setTimeout(() => {
       const nextStatus: GenerationRuntimeStatus = project.status === "queued"
         ? "processing"
@@ -85,7 +185,7 @@ export function ProjectExperience({ projectId }: { projectId: string }) {
       void mockGenerationService.setStatus(project.id, nextStatus, nextStage).then(setProject);
     }, project.status === "queued" ? 900 : 1200);
     return () => window.clearTimeout(timer);
-  }, [project]);
+  }, [autoGenerate, project]);
 
   useEffect(() => {
     if (!project || project.status !== "delivered") return;
@@ -106,7 +206,9 @@ export function ProjectExperience({ projectId }: { projectId: string }) {
     if (!project) return;
     setError(null);
     try {
-      setProject(await mockGenerationService.regenerate(project.id, project.adjustmentNote));
+      const restarted = await mockGenerationService.regenerate(project.id, project.adjustmentNote);
+      setProject(restarted);
+      if (project.generationAttempted) await executeGeneration(restarted);
     } catch (caught) {
       setError(caught instanceof MockServiceError ? caught.message : "The generation could not be restarted.");
     }
@@ -120,7 +222,7 @@ export function ProjectExperience({ projectId }: { projectId: string }) {
       posePresetId: project.setup.posePresetId,
       cameraPresetId: project.setup.cameraPresetId,
     };
-    writeSessionStorage(WORKFLOW_STORAGE_KEY, JSON.stringify({ modelId: project.setup.modelId, activeStep: "review", setups, product: project.product }));
+    writeSessionStorage(WORKFLOW_STORAGE_KEY, JSON.stringify({ modelId: project.setup.modelId, activeStep: "review", setups, product: project.product, productSpecification: project.productSpecification }));
     router.push(`/studio/basic?stage=workspace&model=${project.setup.modelId}&step=review&project=${encodeURIComponent(project.id)}`);
   };
 
@@ -189,13 +291,13 @@ export function ProjectExperience({ projectId }: { projectId: string }) {
         {isGenerating ? (
           <div className={styles.generationLayout}>
             <section className={styles.generationPreview} aria-label="Generation preview">
-              <Image src={project.resultImagePath} fill sizes="(max-width: 900px) 100vw, 62vw" alt="Campaign preview being generated" loading="eager" />
+              <Image src={project.resultImagePath} fill unoptimized={project.resultImagePath.startsWith("data:")} sizes="(max-width: 900px) 100vw, 62vw" alt="Campaign preview being generated" loading="eager" />
               <div className={styles.processingVeil}><span className={styles.processingMark} aria-hidden="true">A</span><p>{project.status === "queued" ? "Campaign queued" : GENERATION_STAGES[project.generationStage]}</p></div>
             </section>
             <section className={styles.progressPanel} aria-live="polite">
               <p className={styles.eyebrow}>Generation in progress</p>
               <h2>Directing the campaign.</h2>
-              <p>You can keep this page open while the local prototype advances through each production stage.</p>
+              <p>{generationStatus.mode === "gemini" ? "One server-only Gemini request is running with automatic retries disabled." : "The complete validated server flow is running against the mock provider with no external charge."}</p>
               <Progress value={generationPercent} label={project.status === "queued" ? "Waiting for studio" : GENERATION_STAGES[project.generationStage]} />
               <ol className={styles.stageList}>
                 {GENERATION_STAGES.map((stage, index) => <li data-active={project.status === "processing" && index === project.generationStage} data-complete={project.status === "processing" && index < project.generationStage} key={stage}><span>{index < project.generationStage ? "✓" : String(index + 1).padStart(2, "0")}</span>{stage}</li>)}
@@ -207,7 +309,7 @@ export function ProjectExperience({ projectId }: { projectId: string }) {
         {project.status === "failed" ? (
           <section className={styles.failurePanel}>
             <p className={styles.eyebrow}>Generation interrupted</p><h2>The campaign preview could not be completed.</h2><p>Your product, credits and complete setup are still preserved in this local project.</p>
-            {error ? <StatusMessage tone="error">{error}</StatusMessage> : null}
+            {error || project.generationError ? <StatusMessage tone="error">{error ?? project.generationError?.message}</StatusMessage> : null}
             <div><Button type="button" onClick={() => void retryGeneration()}>Retry generation</Button><Button type="button" variant="secondary" onClick={adjustSetup}>Adjust setup</Button></div>
           </section>
         ) : null}
@@ -219,14 +321,15 @@ export function ProjectExperience({ projectId }: { projectId: string }) {
         {project.status === "completed" || project.status === "approved" ? (
           <div className={styles.resultLayout}>
             <section className={styles.resultPreview}>
-              <Image src={project.resultImagePath} fill sizes="(max-width: 900px) 100vw, 64vw" alt={`Generated campaign result, version ${project.version}`} loading="eager" />
+              <Image src={project.resultImagePath} fill unoptimized={project.resultImagePath.startsWith("data:")} sizes="(max-width: 900px) 100vw, 64vw" alt={`Generated campaign result, version ${project.version}`} loading="eager" />
               <span>Version {String(project.version).padStart(2, "0")}</span>
             </section>
             <aside className={styles.reviewPanel}>
-              <p className={styles.eyebrow}>Campaign result</p><h2>Review the direction.</h2><p>The result is a local preset preview representing the completed mocked generation.</p>
+              <p className={styles.eyebrow}>Campaign result</p><h2>Review the direction.</h2><p>{project.generationResult?.provider === "gemini" ? "This image was generated by Gemini through the server-only provider route." : "This image completed the same validated server flow using the no-charge mock provider."}</p>
               <div className={styles.originalProduct}><Image src={project.product.previewDataUrl} width={72} height={72} unoptimized alt={`Original product: ${project.product.fileName}`} /><div><span>Original product</span><strong>{project.product.fileName}</strong></div></div>
               <dl className={styles.setupList}>
-                <div><dt>Model</dt><dd>{model.displayName}</dd></div><div><dt>Lighting</dt><dd>{lighting.label}</dd></div><div><dt>Pose</dt><dd>{pose.label}</dd></div><div><dt>Camera</dt><dd>{camera.label}</dd></div>
+                <div><dt>Model</dt><dd>{model.displayName}</dd></div><div><dt>Lighting</dt><dd>{lighting.label}</dd></div><div><dt>Pose</dt><dd>{pose.label}</dd></div><div><dt>Camera</dt><dd>{camera.label}</dd></div><div><dt>Fit</dt><dd>{project.productSpecification.intendedFit}</dd></div>
+                {project.generationResult ? <><div><dt>Provider</dt><dd>{project.generationResult.provider}</dd></div><div><dt>Latency</dt><dd>{(project.generationResult.durationMs / 1000).toFixed(1)} sec</dd></div>{project.generationResult.usage?.totalTokens ? <div><dt>Total tokens</dt><dd>{project.generationResult.usage.totalTokens}</dd></div> : null}</> : null}
               </dl>
               {notice ? <StatusMessage tone="information">{notice}</StatusMessage> : null}
               {error ? <StatusMessage tone="error">{error}</StatusMessage> : null}
@@ -238,7 +341,7 @@ export function ProjectExperience({ projectId }: { projectId: string }) {
 
         {project.status === "delivered" ? (
           <div className={styles.deliveryLayout}>
-            <section className={styles.deliveryPreview}><Image src={project.resultImagePath} fill sizes="(max-width: 900px) 100vw, 62vw" alt="Approved campaign image ready for download" loading="eager" /><span>Approved</span></section>
+            <section className={styles.deliveryPreview}><Image src={project.resultImagePath} fill unoptimized={project.resultImagePath.startsWith("data:")} sizes="(max-width: 900px) 100vw, 62vw" alt="Approved campaign image ready for download" loading="eager" /><span>Approved</span></section>
             <aside className={styles.deliveryPanel}><StatusBadge tone="success">Files ready</StatusBadge><h2>Campaign delivery is ready.</h2><p>The local test assets are prepared in web-compatible formats. Downloads stay in this tab.</p>
               <div className={styles.downloads}>{downloads.map((download) => <a href={download.href} download={download.fileName} key={download.label}>{download.label}<span aria-hidden="true">↓</span></a>)}</div>
               <dl className={styles.deliveryDetails}><div><dt>Project</dt><dd>{project.id}</dd></div><div><dt>Version</dt><dd>{project.version}</dd></div><div><dt>Approved</dt><dd>{project.approvedAt ? new Date(project.approvedAt).toLocaleDateString() : "Today"}</dd></div></dl>
