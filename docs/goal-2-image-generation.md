@@ -97,6 +97,13 @@ Automated tests, builds, page loads, and retries must never trigger a paid reque
 - The attempt guard is in-process only. It resets on server restart and is not coordinated across replicas.
 - There is no production authentication, ownership enforcement, moderation pipeline, job queue, distributed idempotency, provider ledger, or operational observability.
 
+## Controlled live-attempt record
+
+- Attempt 1 — 2026-08-29: one explicit UI-triggered request reached `POST /api/generation` and Gemini returned HTTP 400 in approximately one second. The project UI preserved the setup and displayed the safe failure state. No image, provider request ID, or usage metadata was returned, so product fidelity could not be evaluated and the application cannot determine whether the failed request incurred billable usage.
+- The API key and model-access metadata were then verified without generating an image. The configured key can access `models/gemini-3.1-flash-image`, reported as Nano Banana 2.
+- The request contained an optional `delivery: "inline"` output-format field that is absent from Google's current official JavaScript image-generation example. That field was removed and an exact-payload regression test was added. This is the leading schema-level explanation, but it remains an inference until a separately approved live attempt succeeds.
+- After the failure, the application was returned to `AI_GENERATION_MODE=mock`. No automatic or second paid attempt was made.
+
 ## Goal 3
 
 Build authenticated project ownership, encrypted durable object storage, durable idempotency and per-user rate limits, a background job queue, cancellation and status polling, observability and cost ledgers, provider/moderation policy controls, data-retention rules, and production-grade result delivery. Keep the provider and prompt contracts stable so the UI does not depend on Gemini directly.

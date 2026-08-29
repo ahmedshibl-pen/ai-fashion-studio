@@ -45,7 +45,12 @@ test("Gemini provider sends one request with retries disabled", async () => {
 
   const result = await provider.generate(request);
   assert.deepEqual(receivedOptions, { timeout_ms: 120_000, retries: { strategy: "none" } });
-  assert.equal((receivedRequest?.response_format as { image_size?: string }).image_size, "1K");
+  assert.deepEqual(receivedRequest?.response_format, {
+    type: "image",
+    mime_type: "image/png",
+    aspect_ratio: "3:4",
+    image_size: "1K",
+  });
   assert.equal(result.metadata.providerRequestId, "provider-request-01");
   assert.equal(result.metadata.usage?.totalTokens, 1200);
 });

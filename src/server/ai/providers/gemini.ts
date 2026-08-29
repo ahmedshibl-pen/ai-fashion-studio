@@ -75,7 +75,6 @@ export class GeminiGenerationProvider implements GenerationProvider {
             mime_type: GENERATION_IMAGE_MIME_TYPE,
             aspect_ratio: request.aspectRatio,
             image_size: GENERATION_IMAGE_SIZE,
-            delivery: "inline",
           },
           store: false,
         },
