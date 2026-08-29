@@ -1,5 +1,5 @@
 export const GENERATION_IMAGE_SIZE = "1K" as const;
-export const GENERATION_IMAGE_MIME_TYPE = "image/png" as const;
+export const GENERATION_IMAGE_MIME_TYPE = "image/jpeg" as const;
 
 export type GenerationMode = "mock" | "gemini";
 export type GenerationProviderName = GenerationMode;

@@ -101,8 +101,10 @@ Automated tests, builds, page loads, and retries must never trigger a paid reque
 
 - Attempt 1 — 2026-08-29: one explicit UI-triggered request reached `POST /api/generation` and Gemini returned HTTP 400 in approximately one second. The project UI preserved the setup and displayed the safe failure state. No image, provider request ID, or usage metadata was returned, so product fidelity could not be evaluated and the application cannot determine whether the failed request incurred billable usage.
 - The API key and model-access metadata were then verified without generating an image. The configured key can access `models/gemini-3.1-flash-image`, reported as Nano Banana 2.
-- The request contained an optional `delivery: "inline"` output-format field that is absent from Google's current official JavaScript image-generation example. That field was removed and an exact-payload regression test was added. This is the leading schema-level explanation, but it remains an inference until a separately approved live attempt succeeds.
-- After the failure, the application was returned to `AI_GENERATION_MODE=mock`. No automatic or second paid attempt was made.
+- The request contained an optional `delivery: "inline"` output-format field that is absent from Google's current JavaScript image-generation example. That field was removed and an exact-payload regression test was added.
+- Attempt 2 — 2026-08-29: after separate explicit approval, the UI sent one request without `delivery`. Gemini again returned HTTP 400 in approximately 2.1 seconds, with no image or usage metadata. This disproved `delivery` as the root cause.
+- Google's current Interactions OpenAPI restricts the image output `mime_type` to `image/jpeg`; the application had requested `image/png`, even though PNG remains valid for image inputs. The output request is now aligned to JPEG and protected by the exact-payload test. This is the strongest schema-level diagnosis, but remains unverified by a successful image until a separately approved third and final live attempt.
+- After each failure, the application was returned to `AI_GENERATION_MODE=mock`. No automatic retry was made.
 
 ## Goal 3
 
