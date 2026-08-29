@@ -54,7 +54,7 @@ export async function POST(request: Request) {
     const parsed = await parseGenerationFormData(await request.formData());
     requestId = parsed.requestId;
     const configuration = readGenerationEnvironment();
-    if (configuration.mode === "gemini") {
+    if (configuration.mode !== "mock") {
       reserveLiveGenerationAttempt(parsed.projectId, parsed.requestId);
     }
 

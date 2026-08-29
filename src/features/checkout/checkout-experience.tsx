@@ -26,6 +26,8 @@ export function CheckoutExperience({ projectId, generationStatus }: { projectId:
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const liveProviderName = generationStatus.mode === "replicate" ? "Replicate Nano Banana 2" : "Gemini";
+  const isLiveGeneration = generationStatus.mode !== "mock";
 
   useEffect(() => {
     let active = true;
@@ -74,7 +76,7 @@ export function CheckoutExperience({ projectId, generationStatus }: { projectId:
       <AppHeader />
       <main className={styles.main}>
         <header className={styles.pageHeader}>
-          <div><p className={styles.eyebrow}>Credit confirmation / {generationStatus.mode === "gemini" ? "Live generation" : "Mock generation"}</p><h1>Ready the campaign for production.</h1><p>Confirm how the prototype should allocate credits. No real payment is collected.</p></div>
+          <div><p className={styles.eyebrow}>Credit confirmation / {isLiveGeneration ? "Live generation" : "Mock generation"}</p><h1>Ready the campaign for production.</h1><p>Confirm how the prototype should allocate credits. No real payment is collected.</p></div>
           <Link href={`/studio/basic?stage=workspace&model=${project?.setup.modelId ?? "male-model-01"}`}>← Return to Studio</Link>
         </header>
 
@@ -96,7 +98,7 @@ export function CheckoutExperience({ projectId, generationStatus }: { projectId:
                   <div><dt>Studio</dt><dd>Basic Studio</dd></div>
                   <div><dt>Model</dt><dd>{project.setup.modelId === "female-model-01" ? "Female Model 01" : "Male Model 01"}</dd></div>
                   <div><dt>Version</dt><dd>01</dd></div>
-                  <div><dt>Generation</dt><dd>{generationStatus.mode === "gemini" ? "Live Gemini · 1K" : "Validated mock · 1K"}</dd></div>
+                  <div><dt>Generation</dt><dd>{isLiveGeneration ? `Live ${liveProviderName} · 1K` : "Validated mock · 1K"}</dd></div>
                 </dl>
                 <div className={styles.costLine}><span>Campaign generation</span><strong>{project.creditsCost} credits</strong></div>
               </div>
@@ -126,7 +128,7 @@ export function CheckoutExperience({ projectId, generationStatus }: { projectId:
                 </fieldset>
               ) : null}
 
-              <div className={styles.secureArea}><span aria-hidden="true">◇</span><div><strong>{generationStatus.mode === "gemini" ? "Live provider confirmation" : "Secure mock generation"}</strong><p>{generationStatus.mode === "gemini" ? "One explicit 1K Gemini request will be sent. Provider charges may apply; no automatic retry is used." : "The complete server validation and provider flow runs with no external image request or provider charge."}</p></div></div>
+              <div className={styles.secureArea}><span aria-hidden="true">◇</span><div><strong>{isLiveGeneration ? "Live provider confirmation" : "Secure mock generation"}</strong><p>{isLiveGeneration ? `One explicit 1K ${liveProviderName} request will be sent. Provider charges may apply; no automatic retry is used.` : "The complete server validation and provider flow runs with no external image request or provider charge."}</p></div></div>
               {!generationStatus.ready ? <StatusMessage tone="warning">Live image generation is not configured on the server yet. Add the API key to .env.local before continuing.</StatusMessage> : null}
               {error ? <StatusMessage tone="error">{error}</StatusMessage> : null}
               <Button className={styles.payButton} type="button" onClick={() => void payAndGenerate()} disabled={!generationStatus.ready || paying || (selectedPackage === "balance" && balance < project.creditsCost)}>{paying ? "Confirming…" : selectedPackage === "balance" ? "Use Credits & Generate" : "Pay & Generate"} <span aria-hidden="true">→</span></Button>

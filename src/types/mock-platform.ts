@@ -52,7 +52,7 @@ export type MockProject = {
   resultImagePath: string;
   generationAttempted?: boolean;
   generationResult?: {
-    provider: "mock" | "gemini";
+    provider: "mock" | "gemini" | "replicate";
     model: string;
     requestId: string;
     providerRequestId?: string;
@@ -65,6 +65,10 @@ export type MockProject = {
       outputTokens?: number;
       thoughtTokens?: number;
       totalTokens?: number;
+    };
+    providerMetrics?: {
+      predictTimeSeconds?: number;
+      totalTimeSeconds?: number;
     };
   };
   generationError?: {
