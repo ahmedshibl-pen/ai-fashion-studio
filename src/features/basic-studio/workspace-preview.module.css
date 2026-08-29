@@ -685,6 +685,22 @@
   font-weight: 600;
 }
 
+.storageRecovery {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-light);
+}
+
+.storageRecovery span {
+  color: var(--text-secondary);
+  font-size: 0.6rem;
+  line-height: 1.45;
+}
+
 .actions {
   display: flex;
   justify-content: space-between;

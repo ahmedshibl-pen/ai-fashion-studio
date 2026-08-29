@@ -17,6 +17,7 @@ import { Button, StatusBadge, StatusMessage } from "@/components/ui";
 import { MockAuthDialog } from "@/features/auth/mock-auth-dialog";
 import {
   MockServiceError,
+  clearMockPlatformStore,
   mockAuthService,
   mockProductAssetService,
   mockProjectService,
@@ -169,6 +170,7 @@ export function WorkspacePreview({
   const [productError, setProductError] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
   const [reviewMessage, setReviewMessage] = useState<{ tone: "success" | "error" | "information"; text: string } | null>(null);
+  const [storageFull, setStorageFull] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [pendingProjectId, setPendingProjectId] = useState<string | null>(null);
   const [savingDraft, setSavingDraft] = useState(false);
@@ -346,6 +348,7 @@ export function WorkspacePreview({
   const generateCampaign = async () => {
     if (!product || !setup.lightingPresetId || !setup.posePresetId || !setup.cameraPresetId) return;
     setSavingDraft(true);
+    setStorageFull(false);
     setReviewMessage({ tone: "information", text: "Saving the local campaign draft…" });
     try {
       const project = await mockProjectService.createDraft({
@@ -371,10 +374,20 @@ export function WorkspacePreview({
       window.history.pushState(null, "", `${window.location.pathname}?${params.toString()}`);
       setAuthOpen(true);
     } catch (caught) {
+      setStorageFull(caught instanceof MockServiceError && caught.code === "storage-full");
       setReviewMessage({ tone: "error", text: caught instanceof MockServiceError ? caught.message : "The campaign draft could not be saved." });
     } finally {
       setSavingDraft(false);
     }
+  };
+
+  const clearSavedProjects = () => {
+    clearMockPlatformStore();
+    setStorageFull(false);
+    setReviewMessage({
+      tone: "success",
+      text: "Saved local projects were cleared. Your current product and creative setup are still ready.",
+    });
   };
 
   const setupItems = [
@@ -512,6 +525,12 @@ export function WorkspacePreview({
           <div><span>Balance after</span><strong>200 credits</strong></div>
         </div>
         {reviewMessage ? <StatusMessage tone={reviewMessage.tone}>{reviewMessage.text}</StatusMessage> : null}
+        {storageFull ? (
+          <div className={styles.storageRecovery}>
+            <Button type="button" variant="secondary" onClick={clearSavedProjects}>Clear saved projects</Button>
+            <span>The product and selections on this screen will stay in the current tab.</span>
+          </div>
+        ) : null}
       </div>
     );
   };

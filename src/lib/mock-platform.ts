@@ -46,7 +46,7 @@ type MockStore = {
 export class MockServiceError extends Error {
   constructor(
     message: string,
-    readonly code: "invalid-input" | "not-found" | "payment-failed" | "insufficient-credits" | "expired-session",
+    readonly code: "invalid-input" | "storage-full" | "not-found" | "payment-failed" | "insufficient-credits" | "expired-session",
   ) {
     super(message);
     this.name = "MockServiceError";
@@ -272,8 +272,14 @@ function writeStore(store: MockStore) {
     window.localStorage.setItem(STORE_KEY, JSON.stringify(store));
     window.dispatchEvent(new Event(MOCK_PLATFORM_UPDATED_EVENT));
   } catch {
-    throw new MockServiceError("The local prototype store is full. Remove a large product image and try again.", "invalid-input");
+    throw new MockServiceError("The local prototype store is full. Clear saved projects and try again.", "storage-full");
   }
+}
+
+export function clearMockPlatformStore() {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem(STORE_KEY);
+  window.dispatchEvent(new Event(MOCK_PLATFORM_UPDATED_EVENT));
 }
 
 function updateStoredProject(projectId: string, update: (project: MockProject) => MockProject) {
