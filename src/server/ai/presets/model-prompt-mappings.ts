@@ -7,13 +7,13 @@ import type { ReferencePromptMapping } from "./prompt-mapping-types";
 export const MODEL_PROMPT_BY_ID = {
   "male-model-01": {
     role: "model",
-    promptFragment: "Preserve the facial identity, body proportions, skin tone, and hair of Male Model 01.",
+    promptFragment: "Preserve Omar’s facial identity, body proportions, skin tone, and hair.",
     mustCopy: "the selected person’s identity, appearance, and believable body proportions",
     mustNotCopy: "the model reference clothing, accessories, background, lighting, or pose",
   },
   "female-model-01": {
     role: "model",
-    promptFragment: "Preserve the facial identity, body proportions, skin tone, and hair of Female Model 01.",
+    promptFragment: "Preserve Darla’s facial identity, body proportions, skin tone, and hair.",
     mustCopy: "the selected person’s identity, appearance, and believable body proportions",
     mustNotCopy: "the model reference clothing, accessories, background, lighting, or pose",
   },

@@ -21,7 +21,7 @@ Implemented:
 - Local reusable Button, IconButton, Card, StatusBadge, Stepper, Tabs, RadioCard, UploadSurface, Dialog, Sheet, StatusMessage, Progress, ImageFrame, SectionHeading, CurrentSetup, EmptyState, and Skeleton primitives.
 - Interactive model showroom at `/studio/basic`: transparent model assets, left-side descriptions, keyboard arrows, previous/next controls, pointer/touch drag, smooth snapping, explicit selection, and route-backed handoff.
 - Consolidated workspace preview at `/studio/basic?stage=workspace&model=male-model-01` with product upload, 8-lighting count, 6-pose count, and model-specific camera controls.
-- Female Model 01 route preserves the required no-male-assets empty state.
+- Darla's route preserves the required no-Omar-assets empty state.
 
 Validation:
 
@@ -107,5 +107,5 @@ Remaining:
 - Removed the lower model-stage fade while retaining the transparent-model composition.
 - Refined model movement with a longer smooth deceleration curve and compositor hints.
 - Prevented model-stage drag handling from intercepting arrow, model-card, and pagination button clicks.
-- Browser interaction verification passed: Next changed Male Model 01 to Female Model 01; Choose closed the overlay, unlocked the workspace, and updated the URL to the selected model.
+- Browser interaction verification passed: Next changed Omar to Darla; Choose closed the overlay, unlocked the workspace, and updated the URL to the selected model.
 - Updated selector screenshot: `/private/tmp/ai-fashion-studio-model-overlay-clean-desktop.png`.

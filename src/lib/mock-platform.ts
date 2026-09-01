@@ -217,7 +217,7 @@ function validateProject(value: unknown): MockProject | null {
     version: typeof value.version === "number" ? Math.max(1, value.version) : 1,
     resultImagePath: value.resultImagePath,
     generationAttempted: value.generationAttempted === true,
-    generationResult: isRecord(value.generationResult) && (value.generationResult.provider === "mock" || value.generationResult.provider === "gemini" || value.generationResult.provider === "replicate")
+    generationResult: isRecord(value.generationResult) && (value.generationResult.provider === "mock" || value.generationResult.provider === "replicate")
       ? value.generationResult as MockProject["generationResult"]
       : undefined,
     generationError: isRecord(value.generationError) && typeof value.generationError.code === "string" && typeof value.generationError.message === "string"

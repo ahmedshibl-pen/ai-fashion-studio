@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 
 import { AppHeader } from "@/components/shell/app-header";
 import { Button, EmptyState, StatusBadge, StatusMessage } from "@/components/ui";
+import { STUDIO_MODEL_BY_ID } from "@/features/basic-studio/model-catalog";
 import {
   MockServiceError,
   mockBillingService,
@@ -26,7 +27,7 @@ export function CheckoutExperience({ projectId, generationStatus }: { projectId:
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const liveProviderName = generationStatus.mode === "replicate" ? "Replicate Nano Banana 2" : "Gemini";
+  const liveProviderName = "Replicate Nano Banana 2";
   const isLiveGeneration = generationStatus.mode !== "mock";
 
   useEffect(() => {
@@ -96,7 +97,7 @@ export function CheckoutExperience({ projectId, generationStatus }: { projectId:
                 <h2 id="order-summary-title">{project.name}</h2>
                 <dl>
                   <div><dt>Studio</dt><dd>Basic Studio</dd></div>
-                  <div><dt>Model</dt><dd>{project.setup.modelId === "female-model-01" ? "Female Model 01" : "Male Model 01"}</dd></div>
+                  <div><dt>Model</dt><dd>{STUDIO_MODEL_BY_ID[project.setup.modelId].displayName}</dd></div>
                   <div><dt>Version</dt><dd>01</dd></div>
                   <div><dt>Generation</dt><dd>{isLiveGeneration ? `Live ${liveProviderName} · 1K` : "Validated mock · 1K"}</dd></div>
                 </dl>

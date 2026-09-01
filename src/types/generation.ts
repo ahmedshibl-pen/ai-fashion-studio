@@ -69,8 +69,8 @@ export type GenerationProgressStage =
   | "failed";
 
 export type PublicGenerationStatus = {
-  mode: "mock" | "gemini" | "replicate";
-  model: "gemini-3.1-flash-image" | "google/nano-banana-2";
+  mode: "mock" | "replicate";
+  model: "google/nano-banana-2";
   ready: boolean;
   apiKeyConfigured: boolean;
 };
@@ -78,7 +78,7 @@ export type PublicGenerationStatus = {
 export type GenerationApiSuccess = {
   ok: true;
   result: {
-    provider: "mock" | "gemini" | "replicate";
+    provider: "mock" | "replicate";
     model: string;
     imageDataUrl: string;
     metadata: {
@@ -88,12 +88,6 @@ export type GenerationApiSuccess = {
       durationMs: number;
       imageSize: "1K";
       aspectRatio: string;
-      usage?: {
-        inputTokens?: number;
-        outputTokens?: number;
-        thoughtTokens?: number;
-        totalTokens?: number;
-      };
       providerMetrics?: {
         predictTimeSeconds?: number;
         totalTimeSeconds?: number;

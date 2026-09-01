@@ -3,12 +3,9 @@ import "server-only";
 import { GenerationProviderError } from "./errors";
 import type { GenerationMode } from "./types";
 
-export const DEFAULT_AI_IMAGE_MODEL = "gemini-3.1-flash-image" as const;
 export const DEFAULT_REPLICATE_IMAGE_MODEL = "google/nano-banana-2" as const;
 
-export type GenerationModel =
-  | typeof DEFAULT_AI_IMAGE_MODEL
-  | typeof DEFAULT_REPLICATE_IMAGE_MODEL;
+export type GenerationModel = typeof DEFAULT_REPLICATE_IMAGE_MODEL;
 
 export type GenerationEnvironment = {
   mode: GenerationMode;
@@ -23,16 +20,9 @@ export function readGenerationEnvironment(
   environment: EnvironmentSource = process.env,
 ): GenerationEnvironment {
   const rawMode = environment.AI_GENERATION_MODE?.trim() || "mock";
-  if (rawMode !== "mock" && rawMode !== "gemini" && rawMode !== "replicate") {
+  if (rawMode !== "mock" && rawMode !== "replicate") {
     throw new GenerationProviderError("configuration", {
-      safeMessage: "AI_GENERATION_MODE must be mock, gemini, or replicate.",
-    });
-  }
-
-  const geminiModel = environment.AI_IMAGE_MODEL?.trim() || DEFAULT_AI_IMAGE_MODEL;
-  if (geminiModel !== DEFAULT_AI_IMAGE_MODEL) {
-    throw new GenerationProviderError("configuration", {
-      safeMessage: `AI_IMAGE_MODEL must be ${DEFAULT_AI_IMAGE_MODEL}.`,
+      safeMessage: "AI_GENERATION_MODE must be mock or replicate.",
     });
   }
 
@@ -43,23 +33,15 @@ export function readGenerationEnvironment(
     });
   }
 
-  const model = rawMode === "replicate" ? replicateModel : geminiModel;
   const apiKey = rawMode === "replicate"
     ? environment.REPLICATE_API_TOKEN?.trim() || null
-    : environment.GEMINI_API_KEY?.trim() || null;
+    : null;
   return {
     mode: rawMode,
-    model,
+    model: replicateModel,
     apiKey,
     apiKeyConfigured: apiKey !== null,
   };
-}
-
-export function assertGeminiReady(configuration: GenerationEnvironment) {
-  if (configuration.mode !== "gemini" || !configuration.apiKey) {
-    throw new GenerationProviderError("configuration");
-  }
-  return configuration as GenerationEnvironment & { mode: "gemini"; apiKey: string };
 }
 
 export function assertReplicateReady(configuration: GenerationEnvironment) {

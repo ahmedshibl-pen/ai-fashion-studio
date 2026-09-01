@@ -31,13 +31,15 @@ test("prompt is versioned and includes only the selected preset directions", () 
     fabricBehavior: "fluid",
   });
   const prompt = buildFashionGenerationPrompt({ selection, product });
-  assert.equal(FASHION_PROMPT_VERSION, "fashion-generation-v1");
-  assert.match(prompt, /Male Model 01/);
+  assert.equal(FASHION_PROMPT_VERSION, "fashion-generation-v2");
+  assert.match(prompt, /Omar/);
   assert.match(prompt, /relaxed full-length front pose/i);
   assert.match(prompt, /evenly diffused commercial softbox/i);
   assert.match(prompt, new RegExp(FIT_PROMPT_BY_ID.relaxed.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   assert.doesNotMatch(prompt, /golden theatrical beam/i);
-  assert.match(prompt, /only source of truth for garment/i);
+  assert.match(prompt, /product reference governs garment identity and construction within its own domain/i);
+  assert.match(prompt, /every selected input as equally binding/i);
+  assert.doesNotMatch(prompt, /highest to lowest|priority order/i);
   assert.match(prompt, /Do not copy the pose reference identity, clothing, product details/i);
   assert.match(prompt, /not guaranteed physical measurements/i);
 });

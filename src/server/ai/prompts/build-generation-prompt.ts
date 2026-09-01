@@ -2,9 +2,9 @@ import "server-only";
 
 import { buildGarmentFitFragment } from "./garment-fit";
 import {
+  EQUAL_INPUT_AUTHORITY_DIRECTION,
   MASTER_CAMPAIGN_DIRECTION,
   OUTPUT_DIRECTION,
-  REFERENCE_PRIORITY_DIRECTION,
 } from "./master-prompt";
 import {
   CROSS_REFERENCE_EXCLUSION_DIRECTION,
@@ -29,7 +29,7 @@ export function buildFashionGenerationPrompt({
   return [
     `Prompt version: ${FASHION_PROMPT_VERSION}.`,
     MASTER_CAMPAIGN_DIRECTION,
-    REFERENCE_PRIORITY_DIRECTION,
+    EQUAL_INPUT_AUTHORITY_DIRECTION,
     PRODUCT_PRESERVATION_DIRECTION,
     CROSS_REFERENCE_EXCLUSION_DIRECTION,
     referenceDirection(

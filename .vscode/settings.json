@@ -1,0 +1,4 @@
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv-assets/bin/python",
+  "python.terminal.activateEnvironment": true
+}

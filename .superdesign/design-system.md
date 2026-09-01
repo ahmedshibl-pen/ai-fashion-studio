@@ -8,7 +8,7 @@ Avoid generic SaaS dashboards, purple/blue AI gradients, neon, cyberpunk, gaming
 
 ## Required creative workflow
 
-Basic Studio uses one continuous workspace with Product → Model → Lighting → Pose → Camera → Review. Camera is an explicit current product requirement and stays beside Lighting and Pose. Preserve Male Model 01, Female Model 01, exactly 8 compatible male lighting presets, exactly 6 compatible male pose presets, and existing model-specific Camera presets. Female Model 01 never receives male assets and shows the approved preparation empty state when compatible studio options are unavailable.
+Basic Studio uses one continuous workspace with Product → Model → Lighting → Pose → Camera → Review. Camera is an explicit current product requirement and stays beside Lighting and Pose. Preserve Omar (`male-model-01`), Darla (`female-model-01`), exactly 8 compatible Omar lighting presets, exactly 6 compatible Omar pose presets, and existing model-specific Camera presets. Darla never receives Omar assets and shows the approved preparation empty state when compatible studio options are unavailable.
 
 ## Semantic color system
 

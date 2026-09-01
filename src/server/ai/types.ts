@@ -1,7 +1,7 @@
 export const GENERATION_IMAGE_SIZE = "1K" as const;
 export const GENERATION_IMAGE_MIME_TYPE = "image/jpeg" as const;
 
-export type GenerationMode = "mock" | "gemini" | "replicate";
+export type GenerationMode = "mock" | "replicate";
 export type GenerationProviderName = GenerationMode;
 export type GenerationAspectRatio =
   | "1:1"
@@ -35,13 +35,6 @@ export type GenerationProviderRequest = {
   references: readonly GenerationImageReference[];
 };
 
-export type GenerationUsage = {
-  inputTokens?: number;
-  outputTokens?: number;
-  thoughtTokens?: number;
-  totalTokens?: number;
-};
-
 export type GenerationProviderMetrics = {
   predictTimeSeconds?: number;
   totalTimeSeconds?: number;
@@ -61,7 +54,6 @@ export type GenerationProviderResult = {
     durationMs: number;
     imageSize: typeof GENERATION_IMAGE_SIZE;
     aspectRatio: GenerationAspectRatio;
-    usage?: GenerationUsage;
     providerMetrics?: GenerationProviderMetrics;
   };
 };

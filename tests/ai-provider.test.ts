@@ -5,7 +5,6 @@ import test from "node:test";
 
 import { GenerationProviderError, normalizeGenerationError } from "../src/server/ai/errors";
 import { createGenerationProvider } from "../src/server/ai/provider-factory";
-import { GeminiGenerationProvider } from "../src/server/ai/providers/gemini";
 import { MockGenerationProvider } from "../src/server/ai/providers/mock";
 import { ReplicateGenerationProvider } from "../src/server/ai/providers/replicate";
 import type { GenerationProviderRequest } from "../src/server/ai/types";
@@ -30,33 +29,6 @@ test("mock provider returns a deterministic validated reference", async () => {
   assert.equal(result.provider, "mock");
   assert.equal(result.image.base64, Buffer.from("validated-image").toString("base64"));
   assert.equal(result.metadata.imageSize, "1K");
-});
-
-test("Gemini provider sends one request with retries disabled", async () => {
-  let receivedOptions: unknown;
-  let receivedRequest: Record<string, unknown> | undefined;
-  const provider = new GeminiGenerationProvider("test-key", "gemini-3.1-flash-image", {
-    async create(payload, options) {
-      receivedRequest = payload;
-      receivedOptions = options;
-      return {
-        id: "provider-request-01",
-        output_image: { data: Buffer.from("image").toString("base64"), mime_type: "image/png" },
-        usage: { total_tokens: 1200 },
-      };
-    },
-  });
-
-  const result = await provider.generate(request);
-  assert.deepEqual(receivedOptions, { timeout_ms: 120_000, retries: { strategy: "none" } });
-  assert.deepEqual(receivedRequest?.response_format, {
-    type: "image",
-    mime_type: "image/jpeg",
-    aspect_ratio: "3:4",
-    image_size: "1K",
-  });
-  assert.equal(result.metadata.providerRequestId, "provider-request-01");
-  assert.equal(result.metadata.usage?.totalTokens, 1200);
 });
 
 test("Replicate creates one prediction with exactly the four selected references", async () => {

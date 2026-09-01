@@ -39,8 +39,10 @@ export const LIGHTING_PRESETS: readonly LightingPreset[] = [
     id: "clean-softbox",
     label: "Clean Softbox",
     description: "Clean, evenly diffused commercial studio lighting.",
-    imagePath: "/images/basic-studio/lighting/clean-softbox.webp",
-    thumbnailPath: "/images/basic-studio/lighting/clean-softbox.webp",
+    imagePath:
+      "/images/basic-studio/models/male-model-01/lighting/clean-softbox.webp",
+    thumbnailPath:
+      "/images/basic-studio/models/male-model-01/lighting/clean-softbox.webp",
     focalPosition: "50% 65%",
     imageScale: 1,
     imageTranslation: { x: 0, y: 0 },
@@ -53,8 +55,10 @@ export const LIGHTING_PRESETS: readonly LightingPreset[] = [
     label: "Top Spotlight",
     description:
       "A focused overhead spotlight with strong cinematic contrast.",
-    imagePath: "/images/basic-studio/lighting/top-spotlight.webp",
-    thumbnailPath: "/images/basic-studio/lighting/top-spotlight.webp",
+    imagePath:
+      "/images/basic-studio/models/male-model-01/lighting/top-spotlight.webp",
+    thumbnailPath:
+      "/images/basic-studio/models/male-model-01/lighting/top-spotlight.webp",
     focalPosition: "50% 66%",
     imageScale: 1,
     imageTranslation: { x: 0, y: 0 },
@@ -67,8 +71,10 @@ export const LIGHTING_PRESETS: readonly LightingPreset[] = [
     label: "Golden Diagonal Beam",
     description:
       "A warm theatrical beam cutting diagonally through the studio.",
-    imagePath: "/images/basic-studio/lighting/golden-diagonal-beam.webp",
-    thumbnailPath: "/images/basic-studio/lighting/golden-diagonal-beam.webp",
+    imagePath:
+      "/images/basic-studio/models/male-model-01/lighting/golden-diagonal-beam.webp",
+    thumbnailPath:
+      "/images/basic-studio/models/male-model-01/lighting/golden-diagonal-beam.webp",
     focalPosition: "51% 68%",
     imageScale: 1,
     imageTranslation: { x: 0, y: 0 },
@@ -81,8 +87,10 @@ export const LIGHTING_PRESETS: readonly LightingPreset[] = [
     label: "Cinematic Softbox",
     description:
       "Moody cinematic softbox lighting with warm and cool separation.",
-    imagePath: "/images/basic-studio/lighting/cinematic-softbox.webp",
-    thumbnailPath: "/images/basic-studio/lighting/cinematic-softbox.webp",
+    imagePath:
+      "/images/basic-studio/models/male-model-01/lighting/cinematic-softbox.webp",
+    thumbnailPath:
+      "/images/basic-studio/models/male-model-01/lighting/cinematic-softbox.webp",
     focalPosition: "50% 66%",
     imageScale: 1,
     imageTranslation: { x: 0, y: 0 },
@@ -94,8 +102,10 @@ export const LIGHTING_PRESETS: readonly LightingPreset[] = [
     id: "window-sunlight",
     label: "Window Sunlight",
     description: "Soft natural sunlight with graphic window shadows.",
-    imagePath: "/images/basic-studio/lighting/window-sunlight.webp",
-    thumbnailPath: "/images/basic-studio/lighting/window-sunlight.webp",
+    imagePath:
+      "/images/basic-studio/models/male-model-01/lighting/window-sunlight.webp",
+    thumbnailPath:
+      "/images/basic-studio/models/male-model-01/lighting/window-sunlight.webp",
     focalPosition: "49% 68%",
     imageScale: 1,
     imageTranslation: { x: 0, y: 0 },
@@ -108,8 +118,10 @@ export const LIGHTING_PRESETS: readonly LightingPreset[] = [
     label: "Warm Side Beam",
     description:
       "Dramatic warm side lighting with a deep cinematic background.",
-    imagePath: "/images/basic-studio/lighting/warm-side-beam.webp",
-    thumbnailPath: "/images/basic-studio/lighting/warm-side-beam.webp",
+    imagePath:
+      "/images/basic-studio/models/male-model-01/lighting/warm-side-beam.webp",
+    thumbnailPath:
+      "/images/basic-studio/models/male-model-01/lighting/warm-side-beam.webp",
     focalPosition: "50% 68%",
     imageScale: 1,
     imageTranslation: { x: 0, y: 0 },
@@ -122,8 +134,10 @@ export const LIGHTING_PRESETS: readonly LightingPreset[] = [
     label: "Digicam Flash",
     description:
       "Direct early-2000s digicam flash with a raw editorial finish.",
-    imagePath: "/images/basic-studio/lighting/digicam-flash.webp",
-    thumbnailPath: "/images/basic-studio/lighting/digicam-flash.webp",
+    imagePath:
+      "/images/basic-studio/models/male-model-01/lighting/digicam-flash.webp",
+    thumbnailPath:
+      "/images/basic-studio/models/male-model-01/lighting/digicam-flash.webp",
     focalPosition: "50% 66%",
     imageScale: 1,
     imageTranslation: { x: 0, y: 0 },
@@ -135,8 +149,10 @@ export const LIGHTING_PRESETS: readonly LightingPreset[] = [
     id: "hard-fashion-flash",
     label: "Hard Fashion Flash",
     description: "Crisp hard flash with sharp luxury-fashion shadows.",
-    imagePath: "/images/basic-studio/lighting/hard-fashion-flash.webp",
-    thumbnailPath: "/images/basic-studio/lighting/hard-fashion-flash.webp",
+    imagePath:
+      "/images/basic-studio/models/male-model-01/lighting/hard-fashion-flash.webp",
+    thumbnailPath:
+      "/images/basic-studio/models/male-model-01/lighting/hard-fashion-flash.webp",
     focalPosition: "50% 68%",
     imageScale: 1,
     imageTranslation: { x: 0, y: 0 },

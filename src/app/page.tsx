@@ -39,7 +39,8 @@ const creativeControls = [
     label: "Lighting",
     title: "Shape the mood",
     description: "Move from clean commerce light to a directional editorial atmosphere.",
-    image: "/images/basic-studio/lighting/cinematic-softbox.webp",
+    image:
+      "/images/basic-studio/models/male-model-01/lighting/cinematic-softbox.webp",
     imageClassName: "",
   },
   {

@@ -22,8 +22,8 @@ export type StudioModel = {
 export const STUDIO_MODELS = [
   {
     id: "male-model-01",
-    name: "Male 01",
-    displayName: "Male Model 01",
+    name: "Omar",
+    displayName: "Omar",
     description: "A relaxed full-length stance for clean editorial styling.",
     imagePath: "/images/models/model-man.webp",
     accessibilityLabel:
@@ -38,8 +38,8 @@ export const STUDIO_MODELS = [
   },
   {
     id: "female-model-01",
-    name: "Female 01",
-    displayName: "Female Model 01",
+    name: "Darla",
+    displayName: "Darla",
     description: "A composed full-length pose with a quiet editorial presence.",
     imagePath: "/images/models/model-woman.webp",
     accessibilityLabel:

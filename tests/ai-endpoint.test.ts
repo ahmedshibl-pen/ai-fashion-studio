@@ -47,7 +47,7 @@ test("generation status exposes readiness but never the API key", async () => {
   const response = GET();
   const text = await response.text();
   assert.equal(response.status, 200);
-  assert.doesNotMatch(text, /GEMINI_API_KEY/);
+  assert.doesNotMatch(text, /REPLICATE_API_TOKEN/);
   assert.doesNotMatch(text, /apiKey\"/);
 });
 
@@ -73,7 +73,7 @@ test("generation endpoint completes the full validated mock provider path", asyn
   assert.equal(body.ok, true);
   assert.equal(body.result?.provider, "mock");
   assert.match(body.result?.imageDataUrl ?? "", /^data:image\/webp;base64,/);
-  assert.equal(body.result?.metadata.promptVersion, "fashion-generation-v1");
+  assert.equal(body.result?.metadata.promptVersion, "fashion-generation-v2");
 });
 
 test("live attempt guard permits at most three explicit request IDs per project", () => {
